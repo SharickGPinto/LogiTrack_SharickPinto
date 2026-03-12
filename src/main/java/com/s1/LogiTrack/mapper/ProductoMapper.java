@@ -21,7 +21,6 @@ public class ProductoMapper {
                 bodegaDTO
         );
     }
-
     public Producto DTOAEntidad(ProductoRequestDTO dto, Bodega bodega) {
         if (dto == null || bodega == null) return null;
 
@@ -36,7 +35,6 @@ public class ProductoMapper {
 
     public void actualizarEntidadDesdeDTO(Producto p, ProductoRequestDTO dto, Bodega bodega) {
         if (dto == null || bodega == null) return;
-
         p.setNombre(dto.nombre());
         p.setCategoria(dto.categoria());
         p.setPrecio(dto.precio());

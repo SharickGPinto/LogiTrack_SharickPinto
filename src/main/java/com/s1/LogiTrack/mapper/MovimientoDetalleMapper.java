@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MovimientoDetalleMapper {
 
-public MovimientoDetalleResponseDTO entidaDTO(MovimientoDetalle entidad ) {
+public MovimientoDetalleResponseDTO entidadDTO(MovimientoDetalle entidad ) {
     if (entidad == null) return null;
 
    return new MovimientoDetalleResponseDTO(

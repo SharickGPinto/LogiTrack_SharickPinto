@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive;
 
 public record MovimientoDetalleRequestDTO(
         @NotNull(message = "El id del producto no puede ser nulo")
-        Long productoID,
+        Long productoId,
 
     @NotNull(message = "La cantidad no puede ser nula")
     @Positive(message = "La cantidad debe ser mayor a cero")

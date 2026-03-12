@@ -23,7 +23,7 @@ public class MovimientoMapper {
 
       List<MovimientoDetalleResponseDTO> detalles = movimiento.getDetalles()
               .stream()
-              .map(movimientoDetalleMapper::entidaDTO)
+              .map(movimientoDetalleMapper::entidadDTO)
               .toList();
 
     return new MovimientoResponseDTO(

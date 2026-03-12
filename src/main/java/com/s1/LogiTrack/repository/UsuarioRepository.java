@@ -8,8 +8,6 @@ import java.util.List;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    List<Usuario> findByNombre(String nombre);
-    boolean existsByNombre(String nombre);
-    Long countByNombre(String nombre);
-
+    Usuario findByUsername(String username);
+    Usuario findByDocumento(String documento);
 }
