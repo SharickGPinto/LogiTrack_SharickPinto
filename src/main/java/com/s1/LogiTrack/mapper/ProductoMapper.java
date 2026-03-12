@@ -18,7 +18,7 @@ public class ProductoMapper {
                 p.getCategoria(),
                 p.getPrecio(),
                 p.getStock(),
-                bodegaDTO // Pasamos el DTO anidado
+                bodegaDTO
         );
     }
 

@@ -20,8 +20,10 @@ public class Movimiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
+
     private LocalDateTime fecha;
     @Enumerated(EnumType.STRING)
+
     @Column(name = "tipo_movimiento", nullable = false)
     private TipoMovimiento tipoMovimiento;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,6 +35,7 @@ public class Movimiento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bodega_destino_id")
     private Bodega bodegaDestino;
+
     @OneToMany(mappedBy = "movimiento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovimientoDetalle> detalles = new ArrayList<>();
 }
