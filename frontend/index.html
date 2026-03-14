@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiTrack S.A. | Gestión de Bodegas</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div id="login-view">
+        <div class="login-card">
+            <h2 class="mb-2 titulo-login">LOGITRACK S.A.</h2>
+            <p class="text-muted mb-4">Ingreso al sistema de gestión de bodegas</p>
+
+            <form id="loginForm">
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Usuario</label>
+                    <input type="text" class="form-control" id="userInput" placeholder="Ingrese su usuario" required>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label class="form-label small fw-bold">Contraseña</label>
+                    <input type="password" class="form-control" id="passwordInput" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-main w-100 py-2">INICIAR SESIÓN</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app-container" class="hidden">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-warehouse me-2"></i>LogiTrack
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="menu-item active" data-section="inicio">
+                    <i class="fas fa-house"></i> Inicio
+                </div>
+
+                <div class="menu-item" data-section="bodegas">
+                    <i class="fas fa-warehouse"></i> Bodegas
+                </div>
+
+                <div class="menu-item" data-section="productos">
+                    <i class="fas fa-box-open"></i> Productos
+                </div>
+
+                <div class="menu-item" data-section="movimientos">
+                    <i class="fas fa-truck-ramp-box"></i> Movimientos
+                </div>
+
+                <div class="menu-item" data-section="auditoria">
+                    <i class="fas fa-clipboard-list"></i> Auditoría
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <img src="https://ui-avatars.com/api/?name=Usuario&background=fbc02d" class="rounded-circle" width="38" alt="usuario">
+                <div>
+                    <div class="fw-bold small" id="displayUser">Empleado</div>
+                    <a href="#" id="logoutBtn" class="logout-link">Cerrar sesión</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main-content">
+            <header class="top-header">
+                <div>
+                    <h5 class="mb-0 fw-bold" id="page-title">Inicio</h5>
+                </div>
+
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" id="tableSearch" placeholder="Buscar productos o registros...">
+                    </div>
+
+                    <button class="btn btn-main btn-sm" id="btnNuevo">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-padding">
+                <!-- INICIO -->
+                <div id="section-inicio" class="content-section active">
+                    <div class="banner-visual">
+                        <div>
+                            <h2 class="banner-title">SISTEMA DE GESTIÓN Y AUDITORÍA DE BODEGAS</h2>
+                            <p class="mb-0">Control de productos, movimientos de inventario y trazabilidad de cambios.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="card-stat">
+                                <div class="card-icon"><i class="fas fa-boxes-stacked"></i></div>
+                                <div>
+                                    <small class="text-muted">Productos registrados</small>
+                                    <h4 class="mb-0 fw-bold">84</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card-stat">
+                                <div class="card-icon icon-neutral">
+                                    <i class="fas fa-warehouse"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Bodegas registradas</small>
+                                    <h4 class="mb-0 fw-bold">5</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card-stat">
+                                <div class="card-icon icon-success">
+                                    <i class="fas fa-right-left text-success"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Movimientos realizados</small>
+                                    <h4 class="mb-0 fw-bold text-success">26</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card-stat">
+                                <div class="card-icon icon-danger">
+                                    <i class="fas fa-clipboard-check text-danger"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Registros de auditoría</small>
+                                    <h4 class="mb-0 fw-bold text-danger">18</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BODEGAS -->
+                <div id="section-bodegas" class="content-section">
+                    <div class="table-box">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0">Listado de Bodegas</h6>
+                            <span class="text-muted small">Mostrando: 3 registros</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Ubicación</th>
+                                        <th>Capacidad</th>
+                                        <th>Encargado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td><strong>Bodega Central</strong></td>
+                                        <td>Bucaramanga</td>
+                                        <td>500</td>
+                                        <td>Ana Torres</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td><strong>Bodega Norte</strong></td>
+                                        <td>Cúcuta</td>
+                                        <td>350</td>
+                                        <td>Carlos Díaz</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td><strong>Bodega Sur</strong></td>
+                                        <td>Floridablanca</td>
+                                        <td>420</td>
+                                        <td>Laura Pérez</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCTOS -->
+                <div id="section-productos" class="content-section">
+                    <div class="table-box">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0">Listado de Productos</h6>
+                            <span class="text-muted small">Mostrando: 4 registros</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table align-middle" id="inventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Stock</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td><strong>Caja cartón grande</strong></td>
+                                        <td>Empaque</td>
+                                        <td>45</td>
+                                        <td>$12.000</td>
+                                        <td><span class="status-badge status-ok">Disponible</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td><strong>Pallet de madera</strong></td>
+                                        <td>Soporte</td>
+                                        <td>8</td>
+                                        <td>$65.000</td>
+                                        <td><span class="status-badge status-low">Stock bajo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td><strong>Film estirable</strong></td>
+                                        <td>Protección</td>
+                                        <td>0</td>
+                                        <td>$18.500</td>
+                                        <td><span class="status-badge status-out">Agotado</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td><strong>Cinta de embalaje</strong></td>
+                                        <td>Adhesivos</td>
+                                        <td>120</td>
+                                        <td>$9.800</td>
+                                        <td><span class="status-badge status-ok">Disponible</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MOVIMIENTOS -->
+                <div id="section-movimientos" class="content-section">
+                    <div class="table-box">
+                        <h6 class="fw-bold mb-3">Movimientos de Inventario</h6>
+
+                        <div class="p-3 mb-2 bg-light border-start border-warning border-4">
+                            <strong>ENTRADA:</strong> 20 unidades de Caja cartón grande -
+                            <span class="text-muted">Bodega destino: Bodega Central</span>
+                        </div>
+
+                        <div class="p-3 mb-2 bg-light border-start border-danger border-4">
+                            <strong>SALIDA:</strong> 5 unidades de Pallet de madera -
+                            <span class="text-muted">Bodega origen: Bodega Norte</span>
+                        </div>
+
+                        <div class="p-3 mb-2 bg-light border-start border-primary border-4">
+                            <strong>TRANSFERENCIA:</strong> 10 unidades de Cinta de embalaje -
+                            <span class="text-muted">De Bodega Central a Bodega Sur</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUDITORIA -->
+                <div id="section-auditoria" class="content-section">
+                    <div class="table-box">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0">Registros de Auditoría</h6>
+                            <span class="text-muted small">Mostrando: 3 registros</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Operación</th>
+                                        <th>Fecha y hora</th>
+                                        <th>Usuario</th>
+                                        <th>Entidad</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>INSERT</td>
+                                        <td>13/03/2026 08:10</td>
+                                        <td>admin</td>
+                                        <td>Producto</td>
+                                        <td>Se registró un nuevo producto</td>
+                                    </tr>
+                                    <tr>
+                                        <td>UPDATE</td>
+                                        <td>13/03/2026 09:25</td>
+                                        <td>empleado1</td>
+                                        <td>Bodega</td>
+                                        <td>Se actualizó la capacidad de una bodega</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DELETE</td>
+                                        <td>13/03/2026 10:40</td>
+                                        <td>admin</td>
+                                        <td>Movimiento</td>
+                                        <td>Se eliminó un movimiento registrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
