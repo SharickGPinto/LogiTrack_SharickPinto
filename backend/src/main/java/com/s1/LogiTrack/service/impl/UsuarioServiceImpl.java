@@ -35,47 +35,48 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public UsuarioResponseDTO actualizarUsuario(UsuarioRequestDTO dto, Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe dicho usuario a actualizar"));
+    public UsuarioResponseDTO actualizarUsuario(UsuarioRequestDTO dto, String documento) {
+        Usuario u = usuarioRepository.findByDocumento(documento);
+        if (u == null) {
+            throw new RuntimeException("No existe dicho usuario a actualizar");
+        }
 
         Usuario usuarioPorUsername = usuarioRepository.findByUsername(dto.username());
-        if (usuarioPorUsername != null && !usuarioPorUsername.getId().equals(id)) {
+        if (usuarioPorUsername != null && !usuarioPorUsername.getId().equals(u.getId())) {
             throw new RuntimeException("Ya existe otro usuario con ese username");
         }
 
         Usuario usuarioPorDocumento = usuarioRepository.findByDocumento(dto.documento());
-        if (usuarioPorDocumento != null && !usuarioPorDocumento.getId().equals(id)) {
+        if (usuarioPorDocumento != null && !usuarioPorDocumento.getId().equals(u.getId())) {
             throw new RuntimeException("Ya existe otro usuario con ese documento");
         }
 
-        usuarioMapper.actualizarEntidadDesdeDTO(usuario, dto);
-        Usuario usuarioActualizado = usuarioRepository.save(usuario);
-
-        return usuarioMapper.entidadADTO(usuarioActualizado);
+        usuarioMapper.actualizarEntidadDesdeDTO(u, dto);
+        Usuario u_actualizado = usuarioRepository.save(u);
+        return usuarioMapper.entidadADTO(u_actualizado);
     }
 
     @Override
-    public void eliminarUsuario(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe dicho usuario a eliminar"));
-
-        usuarioRepository.delete(usuario);
+    public void eliminarUsuario(String documento) {
+        Usuario u = usuarioRepository.findByDocumento(documento);
+        if (u == null) {
+            throw new RuntimeException("No existe dicho usuario a eliminar");
+        }
+        usuarioRepository.delete(u);
     }
 
     @Override
     public List<UsuarioResponseDTO> listarUsuarios() {
-        return usuarioRepository.findAll().stream()
-                .map(usuarioMapper::entidadADTO)
-                .toList();
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        return usuarios.stream().map(usuarioMapper::entidadADTO).toList();
     }
 
     @Override
-    public UsuarioResponseDTO buscarPorId(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe dicho usuario"));
-
-        return usuarioMapper.entidadADTO(usuario);
-
+    public UsuarioResponseDTO buscarPorDocumento(String documento) {
+        Usuario u = usuarioRepository.findByDocumento(documento);
+        if (u == null) {
+            throw new RuntimeException("No existe dicho usuario");
+        }
+        return usuarioMapper.entidadADTO(u);
     }
 }

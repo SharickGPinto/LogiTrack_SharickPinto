@@ -8,11 +8,11 @@ import java.util.List;
 public interface UsuarioService {
     UsuarioResponseDTO guardarUsuario(UsuarioRequestDTO dto);
 
-    UsuarioResponseDTO actualizarUsuario(UsuarioRequestDTO dto, Long id);
+    UsuarioResponseDTO actualizarUsuario(UsuarioRequestDTO dto, String documento);
 
-    void eliminarUsuario(Long id);
+    void eliminarUsuario(String docuemento);
 
     List<UsuarioResponseDTO> listarUsuarios();
 
-    UsuarioResponseDTO buscarPorId(Long id);
+    UsuarioResponseDTO buscarPorDocumento(String documento);
 }
