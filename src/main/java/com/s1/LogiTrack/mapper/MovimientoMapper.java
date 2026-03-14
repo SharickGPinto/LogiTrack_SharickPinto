@@ -6,7 +6,6 @@ import com.s1.LogiTrack.dto.response.MovimientoDetalleResponseDTO;
 import com.s1.LogiTrack.dto.response.MovimientoResponseDTO;
 import com.s1.LogiTrack.model.*;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +67,7 @@ public class MovimientoMapper {
         );
     }
 
-    public Movimiento DTOAEntidad(MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino) {
+    public Movimiento DTOAEntidad(MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino, List<MovimientoDetalle> detalles) {
         if (dto == null || usuario == null) return null;
 
         Movimiento movimiento = new Movimiento();
@@ -77,6 +76,7 @@ public class MovimientoMapper {
         movimiento.setUsuario(usuario);
         movimiento.setBodegaOrigen(bodegaOrigen);
         movimiento.setBodegaDestino(bodegaDestino);
+        movimiento.setDetalles(detalles);
 
         return movimiento;
     }
@@ -88,5 +88,6 @@ public class MovimientoMapper {
         movimiento.setUsuario(usuario);
         movimiento.setBodegaOrigen(bodegaOrigen);
         movimiento.setBodegaDestino(bodegaDestino);
+        movimiento.setDetalles(detalles);
     }
 }
