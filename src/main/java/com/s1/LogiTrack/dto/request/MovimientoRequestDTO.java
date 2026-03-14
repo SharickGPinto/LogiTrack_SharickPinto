@@ -9,13 +9,16 @@ import java.util.List;
 
 public record MovimientoRequestDTO(
 
-        @NotNull(message = "El tipo de moviminento es obligatorio")
+        @NotNull(message = "El tipo de movimiento es obligatorio")
         TipoMovimiento tipoMovimiento,
+
+        @NotNull(message = "El usuario es obligatorio")
+        Long usuarioId,
 
         Long bodegaOrigenId,
         Long bodegaDestinoId,
 
-        @NotEmpty(message =  "debe incluir al menos un producto")
+        @NotEmpty(message = "Debe incluir al menos un producto")
         @Valid
         List<MovimientoDetalleRequestDTO> detalles
 

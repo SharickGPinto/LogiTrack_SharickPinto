@@ -14,7 +14,6 @@ import java.util.List;
 @Component
 public class MovimientoMapper {
 
-
     public MovimientoResponseDTO entidadADTO(Movimiento movimiento) {
         if (movimiento == null) return null;
 
@@ -69,7 +68,7 @@ public class MovimientoMapper {
         );
     }
 
-    public Movimiento DTOAEntidad(MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino, List<MovimientoDetalle> detalles) {
+    public Movimiento DTOAEntidad(MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino) {
         if (dto == null || usuario == null) return null;
 
         Movimiento movimiento = new Movimiento();
@@ -78,18 +77,16 @@ public class MovimientoMapper {
         movimiento.setUsuario(usuario);
         movimiento.setBodegaOrigen(bodegaOrigen);
         movimiento.setBodegaDestino(bodegaDestino);
-        movimiento.setDetalles(detalles);
 
         return movimiento;
     }
 
-    public void actualizarEntidadDesdeDTO(Movimiento movimiento, MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino, List<MovimientoDetalle> detalles) {
+    public void actualizarEntidadDesdeDTO(Movimiento movimiento, MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino) {
         if (movimiento == null || dto == null || usuario == null) return;
 
         movimiento.setTipoMovimiento(dto.tipoMovimiento());
         movimiento.setUsuario(usuario);
         movimiento.setBodegaOrigen(bodegaOrigen);
         movimiento.setBodegaDestino(bodegaDestino);
-        movimiento.setDetalles(detalles);
     }
 }
