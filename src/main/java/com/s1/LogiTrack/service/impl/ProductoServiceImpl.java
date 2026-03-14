@@ -20,7 +20,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
     private final ProductoMapper productoMapper;
-     final BodegaRepository bodegaRepository;
+    private final BodegaRepository bodegaRepository;
     private final BodegaMapper bodegaMapper;
 
 

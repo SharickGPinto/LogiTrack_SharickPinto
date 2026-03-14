@@ -1,6 +1,5 @@
 package com.s1.LogiTrack.dto.response;
 
-import com.s1.LogiTrack.dto.request.MovimientoDetalleRequestDTO;
 import com.s1.LogiTrack.model.TipoMovimiento;
 import java.time.LocalDateTime;
 import java.util.List;
