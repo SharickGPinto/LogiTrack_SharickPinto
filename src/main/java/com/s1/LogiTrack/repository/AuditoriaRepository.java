@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface AuditoriaRepository extends JpaRepository<Auditoria, Long> {
 
-    List<Auditoria> findByUsuarioIgnoreCase(String usuario);
+    List<Auditoria> findByUsuario_NombreIgnoreCase(String nombre);
     List<Auditoria> findByOperacion(OperacionAuditoria operacion);
 
 

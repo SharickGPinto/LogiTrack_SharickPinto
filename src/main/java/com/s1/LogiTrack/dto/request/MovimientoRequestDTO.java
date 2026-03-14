@@ -1,6 +1,5 @@
 package com.s1.LogiTrack.dto.request;
 
-import com.s1.LogiTrack.dto.response.MovimientoDetalleResponseDTO;
 import com.s1.LogiTrack.model.TipoMovimiento;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -14,12 +13,11 @@ public record MovimientoRequestDTO(
         TipoMovimiento tipoMovimiento,
 
         Long bodegaOrigenId,
-        Long bodegaDestinoID,
+        Long bodegaDestinoId,
 
         @NotEmpty(message =  "debe incluir al menos un producto")
         @Valid
-        List<MovimientoDetalleResponseDTO> detalles
-
+        List<MovimientoDetalleRequestDTO> detalles
 
 ) {
 }

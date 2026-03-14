@@ -17,6 +17,8 @@ public record UsuarioRequestDTO(
         @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
         String password,
         @NotNull(message = "El rol no puede ser nulo")
-        Rol rol
+        Rol rol,
+        @NotBlank(message = "El username no puede estar vacío")
+        String username
 ) {
 }

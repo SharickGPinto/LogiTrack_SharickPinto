@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public record AuditoriaResponseDTO(
  Long id, String entidad, OperacionAuditoria operacion,
- LocalDateTime fecha, Usuario nombreUsuario, String valorAnterior,
+ LocalDateTime fecha, String nombreUsuario, String valorAnterior,
  String valorNuevo
 ) {
 }

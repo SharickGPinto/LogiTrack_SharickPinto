@@ -15,10 +15,9 @@ public class AuditoriaMapper {
                 auditoria.getEntidad(),
                 auditoria.getOperacion(),
                 auditoria.getFecha(),
-                auditoria.getUsuario(),
+                auditoria.getUsuario() != null ? auditoria.getUsuario().getNombre() : null,
                 auditoria.getValorAnterior(),
                 auditoria.getValorNuevo()
         );
     }
-
 }
