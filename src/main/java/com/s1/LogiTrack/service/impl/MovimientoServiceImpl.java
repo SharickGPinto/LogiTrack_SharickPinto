@@ -1,11 +1,11 @@
 package com.s1.LogiTrack.service.impl;
 
+import com.s1.LogiTrack.dto.request.MovimientoDetalleRequestDTO;
 import com.s1.LogiTrack.dto.request.MovimientoRequestDTO;
 import com.s1.LogiTrack.dto.response.MovimientoResponseDTO;
+import com.s1.LogiTrack.mapper.MovimientoDetalleMapper;
 import com.s1.LogiTrack.mapper.MovimientoMapper;
-import com.s1.LogiTrack.model.Bodega;
-import com.s1.LogiTrack.model.Movimiento;
-import com.s1.LogiTrack.model.Usuario;
+import com.s1.LogiTrack.model.*;
 import com.s1.LogiTrack.repository.BodegaRepository;
 import com.s1.LogiTrack.repository.MovimientoRepository;
 import com.s1.LogiTrack.repository.ProductoRepository;
@@ -14,15 +14,17 @@ import com.s1.LogiTrack.service.MovimientoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MovimientoServiceImpl implements MovimientoService {
     private final MovimientoRepository movimientoRepository;
+    private final MovimientoMapper movimientoMapper;
+    private final MovimientoDetalleMapper movimientoDetalleMapper;
     private final UsuarioRepository usuarioRepository;
     private final BodegaRepository bodegaRepository;
     private final ProductoRepository productoRepository;
-    private final MovimientoMapper movimientoMapper;
 
 
     @Override
@@ -30,15 +32,27 @@ public class MovimientoServiceImpl implements MovimientoService {
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new RuntimeException("No existe el usuario"));
 
-        Bodega bodegaOrigen = bodegaRepository.findById(dto.bodegaOrigenId())
-                .orElseThrow(() -> new RuntimeException("No existe la bodega origen"));
+        Bodega bodegaOrigen = null;
+        if (dto.bodegaOrigenId() != null) {
+            bodegaOrigen = bodegaRepository.findById(dto.bodegaOrigenId())
+                    .orElseThrow(() -> new RuntimeException("No existe la bodega origen"));
+        }
+        Bodega bodegaDestino = null;
+        if (dto.bodegaDestinoId() != null) {
+            bodegaDestino = bodegaRepository.findById(dto.bodegaDestinoId())
+                    .orElseThrow(() -> new RuntimeException("No existe la bodega destino"));
+        }
+        List<MovimientoDetalle> detalles = new ArrayList<>();
 
-        Bodega bodegaDestino = bodegaRepository.findById(dto.bodegaDestinoId())
-                .orElseThrow(() -> new RuntimeException("No existe la bodega destino"));
+        Movimiento movimiento = movimientoMapper.DTOAEntidad(dto, usuario, bodegaOrigen, bodegaDestino, detalles);
+        for (MovimientoDetalleRequestDTO detalleDTO : dto.detalles()) {
+            Producto producto = productoRepository.findById(detalleDTO.productoId())
+                    .orElseThrow(() -> new RuntimeException("No existe el producto"));
 
-        Movimiento movimiento = movimientoMapper.DTOAEntidad(dto, usuario, bodegaOrigen, bodegaDestino);
+            MovimientoDetalle detalle = movimientoDetalleMapper.DTOAEntidad(detalleDTO, producto, movimiento);
+            detalles.add(detalle);
+        }
         Movimiento movimientoInsertado = movimientoRepository.save(movimiento);
-
         return movimientoMapper.entidadADTO(movimientoInsertado);
     }
 
@@ -50,17 +64,32 @@ public class MovimientoServiceImpl implements MovimientoService {
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new RuntimeException("No existe el usuario"));
 
-        Bodega bodegaOrigen = bodegaRepository.findById(dto.bodegaOrigenId())
-                .orElseThrow(() -> new RuntimeException("No existe la bodega origen"));
+        Bodega bodegaOrigen = null;
+        if (dto.bodegaOrigenId() != null) {
+            bodegaOrigen = bodegaRepository.findById(dto.bodegaOrigenId())
+                    .orElseThrow(() -> new RuntimeException("No existe la bodega origen"));
+        }
 
-        Bodega bodegaDestino = bodegaRepository.findById(dto.bodegaDestinoId())
-                .orElseThrow(() -> new RuntimeException("No existe la bodega destino"));
+        Bodega bodegaDestino = null;
+        if (dto.bodegaDestinoId() != null) {
+            bodegaDestino = bodegaRepository.findById(dto.bodegaDestinoId())
+                    .orElseThrow(() -> new RuntimeException("No existe la bodega destino"));
+        }
 
-        movimientoMapper.actualizarEntidadDesdeDTO(movimiento, dto, usuario, bodegaOrigen, bodegaDestino);
+        List<MovimientoDetalle> detalles = new ArrayList<>();
+
+        for (MovimientoDetalleRequestDTO detalleDTO : dto.detalles()) {
+            Producto producto = productoRepository.findById(detalleDTO.productoId())
+                    .orElseThrow(() -> new RuntimeException("No existe el producto"));
+
+            MovimientoDetalle detalle = movimientoDetalleMapper.DTOAEntidad(detalleDTO, producto, movimiento);
+            detalles.add(detalle);
+        }
+
+        movimientoMapper.actualizarEntidadDesdeDTO(movimiento, dto, usuario, bodegaOrigen, bodegaDestino, detalles);
         Movimiento movimientoActualizado = movimientoRepository.save(movimiento);
 
         return movimientoMapper.entidadADTO(movimientoActualizado);
-
     }
 
 

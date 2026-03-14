@@ -81,7 +81,7 @@ public class MovimientoMapper {
         return movimiento;
     }
 
-    public void actualizarEntidadDesdeDTO(Movimiento movimiento, MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino) {
+    public void actualizarEntidadDesdeDTO(Movimiento movimiento, MovimientoRequestDTO dto, Usuario usuario, Bodega bodegaOrigen, Bodega bodegaDestino, List<MovimientoDetalle> detalles) {
         if (movimiento == null || dto == null || usuario == null) return;
 
         movimiento.setTipoMovimiento(dto.tipoMovimiento());
