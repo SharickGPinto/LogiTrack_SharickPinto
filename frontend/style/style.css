@@ -287,3 +287,18 @@ body {
 .hidden {
     display: none !important;
 }
+
+.auth-switch-text {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.auth-switch-text a {
+    color: #b8860b;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-switch-text a:hover {
+    text-decoration: underline;
+}

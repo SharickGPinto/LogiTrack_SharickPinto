@@ -5,6 +5,13 @@ const appContainer = document.getElementById('app-container');
 const displayUser = document.getElementById('displayUser');
 const logoutBtn = document.getElementById('logoutBtn');
 
+// LOGIN / REGISTRO
+const loginCard = document.getElementById('login-card');
+const registerCard = document.getElementById('register-card');
+const showRegister = document.getElementById('showRegister');
+const showLogin = document.getElementById('showLogin');
+const registerForm = document.getElementById('registerForm');
+
 // NAVEGACIÓN
 const menuItems = document.querySelectorAll('.menu-item');
 const pageTitle = document.getElementById('page-title');
@@ -14,10 +21,11 @@ const btnNuevo = document.getElementById('btnNuevo');
 let currentSection = 'inicio';
 
 const titles = {
-    inicio: 'Panel de Inicio',
-    inventario: 'Control de Inventario',
-    movimientos: 'Historial de Movimientos',
-    ajustes: 'Configuración del Sistema'
+    inicio: 'Inicio',
+    bodegas: 'Gestión de Bodegas',
+    productos: 'Gestión de Productos',
+    movimientos: 'Movimientos de Inventario',
+    auditoria: 'Auditoría de Cambios'
 };
 
 // 1. LOGIN
@@ -32,17 +40,59 @@ loginForm.addEventListener('submit', function (e) {
     setTimeout(() => {
         loginView.classList.add('hidden');
         appContainer.classList.remove('hidden');
-        displayUser.innerText = user || 'Operador';
+        displayUser.innerText = user || 'Empleado';
     }, 500);
 });
 
-// 2. CERRAR SESIÓN
+// 2. MOSTRAR FORMULARIO DE REGISTRO
+if (showRegister) {
+    showRegister.addEventListener('click', function (e) {
+        e.preventDefault();
+        loginCard.classList.add('hidden');
+        registerCard.classList.remove('hidden');
+    });
+}
+
+// 3. VOLVER AL LOGIN
+if (showLogin) {
+    showLogin.addEventListener('click', function (e) {
+        e.preventDefault();
+        registerCard.classList.add('hidden');
+        loginCard.classList.remove('hidden');
+    });
+}
+
+// 4. REGISTRO SIMULADO
+if (registerForm) {
+    registerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const nombre = document.getElementById('registerName').value.trim();
+        const documento = document.getElementById('registerDocument').value.trim();
+        const usuario = document.getElementById('registerUser').value.trim();
+        const password = document.getElementById('registerPassword').value.trim();
+        const rol = document.getElementById('registerRole').value;
+
+        if (!nombre || !documento || !usuario || !password || !rol) {
+            alert('Por favor complete todos los campos');
+            return;
+        }
+
+        alert('Usuario registrado correctamente (simulado)');
+
+        registerForm.reset();
+        registerCard.classList.add('hidden');
+        loginCard.classList.remove('hidden');
+    });
+}
+
+// 5. CERRAR SESIÓN
 logoutBtn.addEventListener('click', function (e) {
     e.preventDefault();
     location.reload();
 });
 
-// 3. CAMBIO DE SECCIONES
+// 6. CAMBIO DE SECCIONES
 menuItems.forEach(item => {
     item.addEventListener('click', function () {
         const sectionId = this.dataset.section;
@@ -67,32 +117,34 @@ function navigate(sectionId, element) {
     }
 }
 
-// 4. BOTÓN NUEVO
+// 7. BOTÓN NUEVO
 btnNuevo.addEventListener('click', function () {
-    if (currentSection === 'inventario') {
-        alert('Funcionalidad: Agregar nuevo producto');
+    if (currentSection === 'bodegas') {
+        alert('Funcionalidad: Registrar nueva bodega');
+    } else if (currentSection === 'productos') {
+        alert('Funcionalidad: Registrar nuevo producto');
     } else if (currentSection === 'movimientos') {
         alert('Funcionalidad: Registrar nuevo movimiento');
-    } else if (currentSection === 'ajustes') {
-        alert('Funcionalidad: Crear nueva configuración');
+    } else if (currentSection === 'auditoria') {
+        alert('Funcionalidad: Consultar registros de auditoría');
     } else {
         alert('Funcionalidad disponible según el módulo seleccionado');
     }
 });
 
-// 5. BUSCADOR
+// 8. BUSCADOR
 searchInput.addEventListener('keyup', doSearch);
 
 function doSearch() {
     const filter = searchInput.value.toLowerCase();
-    const inventorySection = document.getElementById('section-inventario');
+    const productosSection = document.getElementById('section-productos');
     const inventoryTable = document.getElementById('inventoryTable');
 
     if (!inventoryTable) return;
 
-    if (filter.length > 0 && currentSection !== 'inventario') {
-        const inventarioBtn = document.querySelector('[data-section="inventario"]');
-        navigate('inventario', inventarioBtn);
+    if (filter.length > 0 && currentSection !== 'productos') {
+        const productosBtn = document.querySelector('[data-section="productos"]');
+        navigate('productos', productosBtn);
     }
 
     const rows = inventoryTable.querySelectorAll('tbody tr');
@@ -106,7 +158,7 @@ function doSearch() {
         }
     });
 
-    if (filter.length === 0 && currentSection !== 'inventario') {
-        inventorySection.classList.remove('active');
+    if (filter.length === 0 && currentSection !== 'productos') {
+        productosSection.classList.remove('active');
     }
 }
