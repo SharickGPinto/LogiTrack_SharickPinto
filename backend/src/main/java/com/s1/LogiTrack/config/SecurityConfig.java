@@ -45,6 +45,7 @@ public class SecurityConfig {
                 // Aquí defino qué endpoints son públicos y cuáles no.
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuario").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/bodega/public/**",
@@ -80,7 +81,7 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://127.0.0.1:5500", "http://localhost:5500"));
+        config.setAllowedOriginPatterns(List.of("http://127.0.0.1:*", "http://localhost:*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogiTrack  | Gestión de Bodegas</title>
+    <title>LogiTrack | Gestión de Bodegas</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@500&display=swap" rel="stylesheet">
@@ -13,82 +13,78 @@
 </head>
 <body>
 
-    <!-- LOGIN -->
-<!-- LOGIN / REGISTRO -->
-<div id="login-view">
-    <!-- LOGIN -->
-    <div class="login-card" id="login-card">
-        <h2 class="mb-2 titulo-login">LOGITRACK S.A.</h2>
-        <p class="text-muted mb-4">Ingreso al sistema de gestión de bodegas</p>
+    <div id="login-view">
+        <div class="login-card" id="login-card">
+            <h2 class="mb-2 titulo-login">LOGITRACK S.A.</h2>
+            <p class="text-muted mb-4">Ingreso al sistema de gestión de bodegas</p>
 
-        <form id="loginForm">
-            <div class="mb-3 text-start">
-                <label class="form-label small fw-bold">Usuario</label>
-                <input type="text" class="form-control" id="userInput" placeholder="Ingrese su usuario" required>
-            </div>
+            <form id="loginForm">
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Usuario</label>
+                    <input type="text" class="form-control" id="userInput" placeholder="Ingrese su usuario" required>
+                </div>
 
-            <div class="mb-4 text-start">
-                <label class="form-label small fw-bold">Contraseña</label>
-                <input type="password" class="form-control" id="passwordInput" placeholder="••••••••" required>
-            </div>
+                <div class="mb-4 text-start">
+                    <label class="form-label small fw-bold">Contraseña</label>
+                    <input type="password" class="form-control" id="passwordInput" placeholder="••••••••" required>
+                </div>
 
-            <button type="submit" class="btn btn-main w-100 py-2">INICIAR SESIÓN</button>
-        </form>
+                <button type="submit" class="btn btn-main w-100 py-2">INICIAR SESIÓN</button>
 
-        <p class="auth-switch-text mt-3 mb-0">
-            ¿No tienes cuenta?
-            <a href="#" id="showRegister">Crear usuario</a>
-        </p>
+                <div id="loginError" class="text-danger small mt-3 d-none"></div>
+            </form>
+
+            <p class="auth-switch-text mt-3 mb-0">
+                ¿No tienes cuenta?
+                <a href="#" id="showRegister">Crear usuario</a>
+            </p>
+        </div>
+
+        <div class="login-card hidden" id="register-card">
+            <h2 class="mb-2 titulo-login">CREAR USUARIO</h2>
+            <p class="text-muted mb-4">Registro de usuario en LogiTrack</p>
+
+            <form id="registerForm">
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Nombre completo</label>
+                    <input type="text" class="form-control" id="registerName" placeholder="Ingrese el nombre completo" required>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Documento</label>
+                    <input type="text" class="form-control" id="registerDocument" placeholder="Ingrese el documento" required>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Usuario</label>
+                    <input type="text" class="form-control" id="registerUser" placeholder="Cree un usuario" required>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Contraseña</label>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="••••••••" required>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label class="form-label small fw-bold">Rol</label>
+                    <select class="form-control" id="registerRole" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="EMPLEADO">EMPLEADO</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-main w-100 py-2">REGISTRAR USUARIO</button>
+            </form>
+
+            <p class="auth-switch-text mt-3 mb-0">
+                ¿Ya tienes cuenta?
+                <a href="#" id="showLogin">Volver al inicio de sesión</a>
+            </p>
+        </div>
     </div>
 
-    <!-- REGISTRO -->
-    <div class="login-card hidden" id="register-card">
-        <h2 class="mb-2 titulo-login">CREAR USUARIO</h2>
-        <p class="text-muted mb-4">Registro de usuario en LogiTrack</p>
-
-        <form id="registerForm">
-            <div class="mb-3 text-start">
-                <label class="form-label small fw-bold">Nombre completo</label>
-                <input type="text" class="form-control" id="registerName" placeholder="Ingrese el nombre completo" required>
-            </div>
-
-            <div class="mb-3 text-start">
-                <label class="form-label small fw-bold">Documento</label>
-                <input type="text" class="form-control" id="registerDocument" placeholder="Ingrese el documento" required>
-            </div>
-
-            <div class="mb-3 text-start">
-                <label class="form-label small fw-bold">Usuario</label>
-                <input type="text" class="form-control" id="registerUser" placeholder="Cree un usuario" required>
-            </div>
-
-            <div class="mb-3 text-start">
-                <label class="form-label small fw-bold">Contraseña</label>
-                <input type="password" class="form-control" id="registerPassword" placeholder="••••••••" required>
-            </div>
-
-            <div class="mb-4 text-start">
-                <label class="form-label small fw-bold">Rol</label>
-                <select class="form-control" id="registerRole" required>
-                    <option value="">Seleccione un rol</option>
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="EMPLEADO">EMPLEADO</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-main w-100 py-2">REGISTRAR USUARIO</button>
-        </form>
-
-        <p class="auth-switch-text mt-3 mb-0">
-            ¿Ya tienes cuenta?
-            <a href="#" id="showLogin">Volver al inicio de sesión</a>
-        </p>
-    </div>
-</div>
-
-    <!-- APP -->
     <div id="app-container" class="hidden">
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <i class="fas fa-warehouse me-2"></i>LogiTrack
@@ -125,7 +121,6 @@
             </div>
         </aside>
 
-        <!-- MAIN -->
         <div class="main-content">
             <header class="top-header">
                 <div>
@@ -145,7 +140,6 @@
             </header>
 
             <div class="page-padding">
-                <!-- INICIO -->
                 <div id="section-inicio" class="content-section active">
                     <div class="banner-visual">
                         <div>
@@ -160,7 +154,7 @@
                                 <div class="card-icon"><i class="fas fa-boxes-stacked"></i></div>
                                 <div>
                                     <small class="text-muted">Productos registrados</small>
-                                    <h4 class="mb-0 fw-bold">84</h4>
+                                    <h4 class="mb-0 fw-bold" id="statProductos">0</h4>
                                 </div>
                             </div>
                         </div>
@@ -172,7 +166,7 @@
                                 </div>
                                 <div>
                                     <small class="text-muted">Bodegas registradas</small>
-                                    <h4 class="mb-0 fw-bold">5</h4>
+                                    <h4 class="mb-0 fw-bold" id="statBodegas">0</h4>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +178,7 @@
                                 </div>
                                 <div>
                                     <small class="text-muted">Movimientos realizados</small>
-                                    <h4 class="mb-0 fw-bold text-success">26</h4>
+                                    <h4 class="mb-0 fw-bold text-success" id="statMovimientos">0</h4>
                                 </div>
                             </div>
                         </div>
@@ -196,19 +190,18 @@
                                 </div>
                                 <div>
                                     <small class="text-muted">Registros de auditoría</small>
-                                    <h4 class="mb-0 fw-bold text-danger">18</h4>
+                                    <h4 class="mb-0 fw-bold text-danger" id="statAuditorias">0</h4>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- BODEGAS -->
                 <div id="section-bodegas" class="content-section">
                     <div class="table-box">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h6 class="fw-bold mb-0">Listado de Bodegas</h6>
-                            <span class="text-muted small">Mostrando: 3 registros</span>
+                            <span class="text-muted small" id="bodegasCountText">Mostrando: 0 registros</span>
                         </div>
 
                         <div class="table-responsive">
@@ -222,27 +215,9 @@
                                         <th>Encargado</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="bodegasTableBody">
                                     <tr>
-                                        <td>1</td>
-                                        <td><strong>Bodega Central</strong></td>
-                                        <td>Bucaramanga</td>
-                                        <td>500</td>
-                                        <td>Ana Torres</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td><strong>Bodega Norte</strong></td>
-                                        <td>Cúcuta</td>
-                                        <td>350</td>
-                                        <td>Carlos Díaz</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td><strong>Bodega Sur</strong></td>
-                                        <td>Floridablanca</td>
-                                        <td>420</td>
-                                        <td>Laura Pérez</td>
+                                        <td colspan="5" class="text-center text-muted">Cargando bodegas...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -250,12 +225,11 @@
                     </div>
                 </div>
 
-                <!-- PRODUCTOS -->
                 <div id="section-productos" class="content-section">
                     <div class="table-box">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h6 class="fw-bold mb-0">Listado de Productos</h6>
-                            <span class="text-muted small">Mostrando: 4 registros</span>
+                            <span class="text-muted small" id="productosCountText">Mostrando: 0 registros</span>
                         </div>
 
                         <div class="table-responsive">
@@ -270,38 +244,9 @@
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="productosTableBody">
                                     <tr>
-                                        <td>1</td>
-                                        <td><strong>Caja cartón grande</strong></td>
-                                        <td>Empaque</td>
-                                        <td>45</td>
-                                        <td>$12.000</td>
-                                        <td><span class="status-badge status-ok">Disponible</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td><strong>Pallet de madera</strong></td>
-                                        <td>Soporte</td>
-                                        <td>8</td>
-                                        <td>$65.000</td>
-                                        <td><span class="status-badge status-low">Stock bajo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td><strong>Film estirable</strong></td>
-                                        <td>Protección</td>
-                                        <td>0</td>
-                                        <td>$18.500</td>
-                                        <td><span class="status-badge status-out">Agotado</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td><strong>Cinta de embalaje</strong></td>
-                                        <td>Adhesivos</td>
-                                        <td>120</td>
-                                        <td>$9.800</td>
-                                        <td><span class="status-badge status-ok">Disponible</span></td>
+                                        <td colspan="6" class="text-center text-muted">Cargando productos...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -309,34 +254,21 @@
                     </div>
                 </div>
 
-                <!-- MOVIMIENTOS -->
                 <div id="section-movimientos" class="content-section">
                     <div class="table-box">
                         <h6 class="fw-bold mb-3">Movimientos de Inventario</h6>
 
-                        <div class="p-3 mb-2 bg-light border-start border-warning border-4">
-                            <strong>ENTRADA:</strong> 20 unidades de Caja cartón grande -
-                            <span class="text-muted">Bodega destino: Bodega Central</span>
-                        </div>
-
-                        <div class="p-3 mb-2 bg-light border-start border-danger border-4">
-                            <strong>SALIDA:</strong> 5 unidades de Pallet de madera -
-                            <span class="text-muted">Bodega origen: Bodega Norte</span>
-                        </div>
-
-                        <div class="p-3 mb-2 bg-light border-start border-primary border-4">
-                            <strong>TRANSFERENCIA:</strong> 10 unidades de Cinta de embalaje -
-                            <span class="text-muted">De Bodega Central a Bodega Sur</span>
+                        <div id="movimientosList">
+                            <div class="text-center text-muted py-3">Cargando movimientos...</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- AUDITORIA -->
                 <div id="section-auditoria" class="content-section">
                     <div class="table-box">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h6 class="fw-bold mb-0">Registros de Auditoría</h6>
-                            <span class="text-muted small">Mostrando: 3 registros</span>
+                            <span class="text-muted small" id="auditoriasCountText">Mostrando: 0 registros</span>
                         </div>
 
                         <div class="table-responsive">
@@ -350,27 +282,9 @@
                                         <th>Descripción</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="auditoriaTableBody">
                                     <tr>
-                                        <td>INSERT</td>
-                                        <td>13/03/2026 08:10</td>
-                                        <td>admin</td>
-                                        <td>Producto</td>
-                                        <td>Se registró un nuevo producto</td>
-                                    </tr>
-                                    <tr>
-                                        <td>UPDATE</td>
-                                        <td>13/03/2026 09:25</td>
-                                        <td>empleado1</td>
-                                        <td>Bodega</td>
-                                        <td>Se actualizó la capacidad de una bodega</td>
-                                    </tr>
-                                    <tr>
-                                        <td>DELETE</td>
-                                        <td>13/03/2026 10:40</td>
-                                        <td>admin</td>
-                                        <td>Movimiento</td>
-                                        <td>Se eliminó un movimiento registrado</td>
+                                        <td colspan="5" class="text-center text-muted">Cargando auditoría...</td>
                                     </tr>
                                 </tbody>
                             </table>
