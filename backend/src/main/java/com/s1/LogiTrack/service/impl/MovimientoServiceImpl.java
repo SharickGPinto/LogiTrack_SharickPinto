@@ -182,10 +182,19 @@ public class MovimientoServiceImpl implements MovimientoService {
                 throw new BusinessRuleException("El producto de una entrada debe pertenecer a la bodega destino");
             }
         }
-
-        if (tipoMovimiento == TipoMovimiento.SALIDA || tipoMovimiento == TipoMovimiento.TRANSFERENCIA) {
+        if (tipoMovimiento == TipoMovimiento.SALIDA) {
             if (producto.getBodega() == null || !producto.getBodega().getId().equals(bodegaOrigen.getId())) {
                 throw new BusinessRuleException("El producto seleccionado no pertenece a la bodega origen");
+            }
+        }
+        if (tipoMovimiento == TipoMovimiento.TRANSFERENCIA) {
+            if (producto.getBodega() == null || !producto.getBodega().getId().equals(bodegaOrigen.getId())) {
+                throw new BusinessRuleException("El producto seleccionado no pertenece a la bodega origen");
+            }
+            Producto productoDestino = buscarProductoEnBodegaDestino(producto, bodegaDestino);
+            if (productoDestino == null) {
+                throw new BusinessRuleException("El producto '" + producto.getNombre()
+                        + "' no existe en la bodega destino. Debe estar registrado en ambas bodegas para poder transferir");
             }
         }
     }
@@ -196,7 +205,6 @@ public class MovimientoServiceImpl implements MovimientoService {
             productoRepository.save(producto);
             return;
         }
-
         if (tipoMovimiento == TipoMovimiento.SALIDA) {
             if (producto.getStock() < cantidad) {
                 throw new BusinessRuleException("No hay stock suficiente para realizar la salida");
@@ -205,23 +213,13 @@ public class MovimientoServiceImpl implements MovimientoService {
             productoRepository.save(producto);
             return;
         }
-
+        // TRANSFERENCIA
         if (producto.getStock() < cantidad) {
             throw new BusinessRuleException("No hay stock suficiente para realizar la transferencia");
         }
-
         producto.setStock(producto.getStock() - cantidad);
         productoRepository.save(producto);
-
         Producto productoDestino = buscarProductoEnBodegaDestino(producto, bodegaDestino);
-        if (productoDestino == null) {
-            productoDestino = new Producto();
-            productoDestino.setNombre(producto.getNombre());
-            productoDestino.setCategoria(producto.getCategoria());
-            productoDestino.setPrecio(producto.getPrecio());
-            productoDestino.setStock(0);
-            productoDestino.setBodega(bodegaDestino);
-        }
         productoDestino.setStock(productoDestino.getStock() + cantidad);
         productoRepository.save(productoDestino);
     }

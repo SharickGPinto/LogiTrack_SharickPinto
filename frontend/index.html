@@ -221,7 +221,7 @@
                 <div id="section-bodegas" class="content-section">
                     <div class="table-box mb-4 hidden" id="bodegaFormBox">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="fw-bold mb-0">Registrar Bodega</h6>
+                            <h6 class="fw-bold mb-0" id="bodegaFormTitulo">Registrar Bodega</h6>
                             <button type="button" class="btn btn-outline-secondary btn-sm"
                                 id="cancelBodegaBtn">Cancelar</button>
                         </div>
@@ -257,7 +257,7 @@
                             <div id="bodegaFormError" class="text-danger small mt-3 hidden"></div>
 
                             <div class="mt-4 d-flex gap-2">
-                                <button type="submit" class="btn btn-main">Guardar bodega</button>
+                               <button type="submit" class="btn btn-main" id="bodegaSubmitBtn">Guardar bodega</button>
                                 <button type="button" class="btn btn-outline-secondary"
                                     id="cancelBodegaBtnBottom">Cancelar</button>
                             </div>
@@ -279,6 +279,7 @@
                                         <th>Ubicación</th>
                                         <th>Capacidad</th>
                                         <th>Encargado</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="bodegasTableBody">
@@ -294,7 +295,7 @@
                 <div id="section-productos" class="content-section">
                     <div class="table-box mb-4 hidden" id="productoFormBox">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="fw-bold mb-0">Registrar Producto</h6>
+                            <h6 class="fw-bold mb-0" id="productoFormTitulo">Registrar Producto</h6>
                             <button type="button" class="btn btn-outline-secondary btn-sm"
                                 id="cancelProductoBtn">Cancelar</button>
                         </div>
@@ -336,7 +337,7 @@
                             <div id="productoFormError" class="text-danger small mt-3 hidden"></div>
 
                             <div class="mt-4 d-flex gap-2">
-                                <button type="submit" class="btn btn-main">Guardar producto</button>
+                                <button type="submit" class="btn btn-main" id="productoSubmitBtn">Guardar producto</button>
                                 <button type="button" class="btn btn-outline-secondary"
                                     id="cancelProductoBtnBottom">Cancelar</button>
                             </div>
@@ -359,6 +360,7 @@
                                         <th>Stock</th>
                                         <th>Precio</th>
                                         <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="productosTableBody">

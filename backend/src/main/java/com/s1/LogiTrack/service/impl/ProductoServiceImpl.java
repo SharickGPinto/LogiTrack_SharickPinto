@@ -12,6 +12,7 @@ import com.s1.LogiTrack.model.OperacionAuditoria;
 import com.s1.LogiTrack.model.Producto;
 import com.s1.LogiTrack.repository.AuditoriaRepository;
 import com.s1.LogiTrack.repository.BodegaRepository;
+import com.s1.LogiTrack.repository.MovimientoDetalleRepository;
 import com.s1.LogiTrack.repository.ProductoRepository;
 import com.s1.LogiTrack.service.ProductoService;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +30,7 @@ public class ProductoServiceImpl implements ProductoService {
     private final BodegaRepository bodegaRepository;
     private final BodegaMapper bodegaMapper;
     private final AuditoriaRepository auditoriaRepository;
+    private final MovimientoDetalleRepository movimientoDetalleRepository;
 
     @Override
     public ProductoResponseDTO guardarProducto(ProductoRequestDTO dto) {
@@ -96,7 +98,9 @@ public class ProductoServiceImpl implements ProductoService {
     public void eliminarProducto(Long id) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No existe dicho producto a eliminar"));
-
+        if (movimientoDetalleRepository.existsByProducto(producto)) {
+            throw new BusinessRuleException("No se puede eliminar el producto porque tiene movimientos registrados");
+        }
         String valorAnterior = construirResumen(producto);
         productoRepository.delete(producto);
         registrarAuditoria("Producto", OperacionAuditoria.DELETE, null, valorAnterior, null);

@@ -70,6 +70,14 @@ const auditoriaOperacionFiltro = document.getElementById('auditoriaOperacionFilt
 const auditoriaFilterError = document.getElementById('auditoriaFilterError');
 const clearAuditoriaFiltersBtn = document.getElementById('clearAuditoriaFiltersBtn');
 
+let bodegaEditId = null;
+let productoEditId = null;
+
+const bodegaFormTitulo = document.getElementById('bodegaFormTitulo');
+const bodegaSubmitBtn = document.getElementById('bodegaSubmitBtn');
+const productoFormTitulo = document.getElementById('productoFormTitulo');
+const productoSubmitBtn = document.getElementById('productoSubmitBtn');
+
 let currentSection = 'inicio';
 
 const titles = {
@@ -277,6 +285,14 @@ function ocultarTodosLosFormularios() {
     clearFormError(productoFormError);
     clearFormError(bodegaFormError);
     clearFormError(movimientoFormError);
+
+    // Resetear modo edicion
+    bodegaEditId = null;
+    productoEditId = null;
+    if (bodegaFormTitulo) bodegaFormTitulo.innerText = 'Registrar Bodega';
+    if (bodegaSubmitBtn) bodegaSubmitBtn.innerText = 'Guardar bodega';
+    if (productoFormTitulo) productoFormTitulo.innerText = 'Registrar Producto';
+    if (productoSubmitBtn) productoSubmitBtn.innerText = 'Guardar producto';
 }
 
 async function cargarDashboard() {
@@ -312,6 +328,10 @@ async function cargarBodegas() {
         if (bodegasCountText) bodegasCountText.innerText = `Mostrando: ${bodegas.length} registros`;
 
         if (bodegasTableBody) {
+            if (bodegas.length === 0) {
+                bodegasTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay bodegas registradas</td></tr>';
+                return;
+            }
             bodegasTableBody.innerHTML = bodegas.map(bodega => `
                 <tr>
                     <td>${bodega.id}</td>
@@ -319,16 +339,20 @@ async function cargarBodegas() {
                     <td>${bodega.ubicacion}</td>
                     <td>${bodega.capacidad}</td>
                     <td>${bodega.nombreEncargado || 'Sin encargado'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editarBodega(${bodega.id})">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarBodega(${bodega.id}, '${bodega.nombre}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
-
-            if (bodegas.length === 0) {
-                bodegasTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay bodegas registradas</td></tr>';
-            }
         }
     } catch (error) {
         if (bodegasTableBody) {
-            bodegasTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${error.message}</td></tr>`;
+            bodegasTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${error.message}</td></tr>`;
         }
     }
 }
@@ -339,6 +363,10 @@ async function cargarProductos() {
         if (productosCountText) productosCountText.innerText = `Mostrando: ${productos.length} registros`;
 
         if (productosTableBody) {
+            if (productos.length === 0) {
+                productosTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay productos registrados</td></tr>';
+                return;
+            }
             productosTableBody.innerHTML = productos.map(producto => {
                 const status = getProductStatus(producto.stock);
                 return `
@@ -349,17 +377,21 @@ async function cargarProductos() {
                         <td>${producto.stock}</td>
                         <td>${formatPrice(producto.precio)}</td>
                         <td><span class="status-badge ${status.className}">${status.text}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editarProducto(${producto.id})">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(${producto.id}, '${producto.nombre}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
             }).join('');
-
-            if (productos.length === 0) {
-                productosTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay productos registrados</td></tr>';
-            }
         }
     } catch (error) {
         if (productosTableBody) {
-            productosTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${error.message}</td></tr>`;
+            productosTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${error.message}</td></tr>`;
         }
     }
 }
@@ -369,16 +401,21 @@ async function cargarMovimientos() {
         const movimientos = await apiFetch('/api/movimiento/public');
 
         if (movimientosList) {
-            movimientosList.innerHTML = movimientos.map(movimiento => `
-                <div class="p-3 mb-2 bg-light border-start ${getMovimientoClass(movimiento.tipoMovimiento)} border-4">
-                    <strong>${movimiento.tipoMovimiento}:</strong> ${buildMovimientoText(movimiento)}
-                    <div class="text-muted small mt-1">${formatDate(movimiento.fecha)} | Usuario: ${movimiento.nombreUsuario || 'Sin usuario'}</div>
-                </div>
-            `).join('');
-
             if (movimientos.length === 0) {
                 movimientosList.innerHTML = '<div class="text-center text-muted py-3">No hay movimientos registrados</div>';
+                return;
             }
+            movimientosList.innerHTML = movimientos.map(movimiento => `
+                <div class="p-3 mb-2 bg-light border-start ${getMovimientoClass(movimiento.tipoMovimiento)} border-4 d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>${movimiento.tipoMovimiento}:</strong> ${buildMovimientoText(movimiento)}
+                        <div class="text-muted small mt-1">${formatDate(movimiento.fecha)} | Usuario: ${movimiento.nombreUsuario || 'Sin usuario'}</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger ms-3 flex-shrink-0" onclick="eliminarMovimiento(${movimiento.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
         }
     } catch (error) {
         if (movimientosList) {
@@ -621,6 +658,106 @@ async function filtrarAuditoria() {
         }
     }
 }
+async function editarBodega(id) {
+    try {
+        const bodega = await apiFetch(`/api/bodega/${id}`);
+        ocultarTodosLosFormularios();
+        bodegaFormBox.classList.remove('hidden');
+        clearFormError(bodegaFormError);
+
+        await cargarUsuariosEnSelect(bodegaEncargadoId, 'Seleccione un encargado');
+
+        document.getElementById('bodegaNombre').value = bodega.nombre;
+        document.getElementById('bodegaUbicacion').value = bodega.ubicacion;
+        document.getElementById('bodegaCapacidad').value = bodega.capacidad;
+
+        // Seleccionar el encargado actual por nombre
+        const opciones = bodegaEncargadoId.options;
+        for (let i = 0; i < opciones.length; i++) {
+            if (opciones[i].text.startsWith(bodega.nombreEncargado)) {
+                bodegaEncargadoId.selectedIndex = i;
+                break;
+            }
+        }
+
+        bodegaEditId = id;
+        if (bodegaFormTitulo) bodegaFormTitulo.innerText = 'Editar Bodega';
+        if (bodegaSubmitBtn) bodegaSubmitBtn.innerText = 'Actualizar bodega';
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function eliminarBodega(id, nombre) {
+    if (!confirm(`¿Seguro que deseas eliminar la bodega "${nombre}"?`)) return;
+    try {
+        await apiFetch(`/api/bodega/${id}`, { method: 'DELETE' });
+        await cargarTodo();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+// ─── PRODUCTO: editar y eliminar ─────────────────────────────────────────────
+
+async function editarProducto(id) {
+    try {
+        const producto = await apiFetch(`/api/producto/${id}`);
+        ocultarTodosLosFormularios();
+        productoFormBox.classList.remove('hidden');
+        clearFormError(productoFormError);
+
+        await cargarBodegasEnSelect(productoBodegaId, 'Seleccione una bodega');
+
+        document.getElementById('productoNombre').value = producto.nombre;
+        document.getElementById('productoCategoria').value = producto.categoria || '';
+        document.getElementById('productoPrecio').value = producto.precio;
+        document.getElementById('productoStock').value = producto.stock;
+
+        // Seleccionar la bodega actual
+        const opciones = productoBodegaId.options;
+        for (let i = 0; i < opciones.length; i++) {
+            if (opciones[i].text === producto.bodega?.nombre) {
+                productoBodegaId.selectedIndex = i;
+                break;
+            }
+        }
+
+        productoEditId = id;
+        if (productoFormTitulo) productoFormTitulo.innerText = 'Editar Producto';
+        if (productoSubmitBtn) productoSubmitBtn.innerText = 'Actualizar producto';
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function eliminarProducto(id, nombre) {
+    if (!confirm(`¿Seguro que deseas eliminar el producto "${nombre}"?`)) return;
+    try {
+        await apiFetch(`/api/producto/${id}`, { method: 'DELETE' });
+        alert('Producto eliminado correctamente');
+        await cargarTodo();
+    } catch (error) {
+        if (error.message && error.message.includes('stock fue puesto en 0')) {
+            alert('Este producto tiene movimientos registrados.\nSu stock fue puesto en 0 para conservar el historial.');
+            await cargarTodo();
+        } else {
+            alert(error.message);
+        }
+    }
+}
+
+// ─── MOVIMIENTO: eliminar ─────────────────────────────────────────────────────
+
+async function eliminarMovimiento(id) {
+    if (!confirm('¿Seguro que deseas eliminar este movimiento? Se revertirá el stock.')) return;
+    try {
+        await apiFetch(`/api/movimiento/${id}`, { method: 'DELETE' });
+        await cargarTodo();
+    } catch (error) {
+        alert(error.message);
+    }
+}
 
 loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -691,7 +828,6 @@ if (registerForm) {
 if (productoForm) {
     productoForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-
         clearFormError(productoFormError);
 
         const nombre = document.getElementById('productoNombre').value.trim();
@@ -700,19 +836,22 @@ if (productoForm) {
         const stock = document.getElementById('productoStock').value.trim();
         const bodegaId = document.getElementById('productoBodegaId').value;
 
-        try {
-            await apiFetch('/api/producto', {
-                method: 'POST',
-                body: JSON.stringify({
-                    nombre,
-                    categoria: categoria === '' ? null : categoria,
-                    precio: Number(precio),
-                    stock: Number(stock),
-                    bodegaId: Number(bodegaId)
-                })
-            });
+        const body = JSON.stringify({
+            nombre,
+            categoria: categoria === '' ? null : categoria,
+            precio: Number(precio),
+            stock: Number(stock),
+            bodegaId: Number(bodegaId)
+        });
 
-            alert('Producto registrado correctamente');
+        try {
+            if (productoEditId) {
+                await apiFetch(`/api/producto/${productoEditId}`, { method: 'PUT', body });
+                alert('Producto actualizado correctamente');
+            } else {
+                await apiFetch('/api/producto', { method: 'POST', body });
+                alert('Producto registrado correctamente');
+            }
             ocultarTodosLosFormularios();
             await cargarTodo();
         } catch (error) {
@@ -724,7 +863,6 @@ if (productoForm) {
 if (bodegaForm) {
     bodegaForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-
         clearFormError(bodegaFormError);
 
         const nombre = document.getElementById('bodegaNombre').value.trim();
@@ -732,18 +870,21 @@ if (bodegaForm) {
         const capacidad = document.getElementById('bodegaCapacidad').value.trim();
         const encargadoId = document.getElementById('bodegaEncargadoId').value;
 
-        try {
-            await apiFetch('/api/bodega', {
-                method: 'POST',
-                body: JSON.stringify({
-                    nombre,
-                    ubicacion,
-                    capacidad: Number(capacidad),
-                    encargadoId: Number(encargadoId)
-                })
-            });
+        const body = JSON.stringify({
+            nombre,
+            ubicacion,
+            capacidad: Number(capacidad),
+            encargadoId: Number(encargadoId)
+        });
 
-            alert('Bodega registrada correctamente');
+        try {
+            if (bodegaEditId) {
+                await apiFetch(`/api/bodega/${bodegaEditId}`, { method: 'PUT', body });
+                alert('Bodega actualizada correctamente');
+            } else {
+                await apiFetch('/api/bodega', { method: 'POST', body });
+                alert('Bodega registrada correctamente');
+            }
             ocultarTodosLosFormularios();
             await cargarTodo();
         } catch (error) {
