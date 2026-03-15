@@ -2,13 +2,19 @@ package com.s1.LogiTrack.service.impl;
 
 import com.s1.LogiTrack.dto.request.UsuarioRequestDTO;
 import com.s1.LogiTrack.dto.response.UsuarioResponseDTO;
+import com.s1.LogiTrack.exception.BusinessRuleException;
 import com.s1.LogiTrack.mapper.UsuarioMapper;
+import com.s1.LogiTrack.model.Auditoria;
+import com.s1.LogiTrack.model.OperacionAuditoria;
 import com.s1.LogiTrack.model.Usuario;
+import com.s1.LogiTrack.repository.AuditoriaRepository;
 import com.s1.LogiTrack.repository.UsuarioRepository;
 import com.s1.LogiTrack.service.UsuarioService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,20 +23,22 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final AuditoriaRepository auditoriaRepository;
 
     @Override
     public UsuarioResponseDTO guardarUsuario(UsuarioRequestDTO dto) {
         if (usuarioRepository.findByUsername(dto.username()) != null) {
-            throw new RuntimeException("Ya existe un usuario con ese username");
+            throw new BusinessRuleException("Ya existe un usuario con ese username");
         }
 
         if (usuarioRepository.findByDocumento(dto.documento()) != null) {
-            throw new RuntimeException("Ya existe un usuario con ese documento");
+            throw new BusinessRuleException("Ya existe un usuario con ese documento");
         }
 
         Usuario usuario = usuarioMapper.DTOAEntidad(dto);
         Usuario usuarioInsertado = usuarioRepository.save(usuario);
 
+        registrarAuditoria("Usuario", OperacionAuditoria.INSERT, usuarioInsertado, null, construirResumen(usuarioInsertado));
         return usuarioMapper.entidadADTO(usuarioInsertado);
     }
 
@@ -38,45 +46,71 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioResponseDTO actualizarUsuario(UsuarioRequestDTO dto, String documento) {
         Usuario u = usuarioRepository.findByDocumento(documento);
         if (u == null) {
-            throw new RuntimeException("No existe dicho usuario a actualizar");
+            throw new EntityNotFoundException("No existe dicho usuario a actualizar");
         }
 
         Usuario usuarioPorUsername = usuarioRepository.findByUsername(dto.username());
         if (usuarioPorUsername != null && !usuarioPorUsername.getId().equals(u.getId())) {
-            throw new RuntimeException("Ya existe otro usuario con ese username");
+            throw new BusinessRuleException("Ya existe otro usuario con ese username");
         }
 
         Usuario usuarioPorDocumento = usuarioRepository.findByDocumento(dto.documento());
         if (usuarioPorDocumento != null && !usuarioPorDocumento.getId().equals(u.getId())) {
-            throw new RuntimeException("Ya existe otro usuario con ese documento");
+            throw new BusinessRuleException("Ya existe otro usuario con ese documento");
         }
 
+        String valorAnterior = construirResumen(u);
         usuarioMapper.actualizarEntidadDesdeDTO(u, dto);
-        Usuario u_actualizado = usuarioRepository.save(u);
-        return usuarioMapper.entidadADTO(u_actualizado);
+        Usuario usuarioActualizado = usuarioRepository.save(u);
+
+        registrarAuditoria("Usuario", OperacionAuditoria.UPDATE, usuarioActualizado, valorAnterior, construirResumen(usuarioActualizado));
+        return usuarioMapper.entidadADTO(usuarioActualizado);
     }
 
     @Override
     public void eliminarUsuario(String documento) {
         Usuario u = usuarioRepository.findByDocumento(documento);
         if (u == null) {
-            throw new RuntimeException("No existe dicho usuario a eliminar");
+            throw new EntityNotFoundException("No existe dicho usuario a eliminar");
         }
+
+        String valorAnterior = construirResumen(u);
         usuarioRepository.delete(u);
+        registrarAuditoria("Usuario", OperacionAuditoria.DELETE, u, valorAnterior, null);
     }
 
     @Override
     public List<UsuarioResponseDTO> listarUsuarios() {
-        List<Usuario> usuarios = usuarioRepository.findAll();
-        return usuarios.stream().map(usuarioMapper::entidadADTO).toList();
+        return usuarioRepository.findAll().stream()
+                .map(usuarioMapper::entidadADTO)
+                .toList();
     }
 
     @Override
     public UsuarioResponseDTO buscarPorDocumento(String documento) {
         Usuario u = usuarioRepository.findByDocumento(documento);
         if (u == null) {
-            throw new RuntimeException("No existe dicho usuario");
+            throw new EntityNotFoundException("No existe dicho usuario");
         }
         return usuarioMapper.entidadADTO(u);
+    }
+
+    private void registrarAuditoria(String entidad, OperacionAuditoria operacion, Usuario usuario, String valorAnterior, String valorNuevo) {
+        Auditoria auditoria = new Auditoria();
+        auditoria.setEntidad(entidad);
+        auditoria.setOperacion(operacion);
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setUsuario(usuario);
+        auditoria.setValorAnterior(valorAnterior);
+        auditoria.setValorNuevo(valorNuevo);
+        auditoriaRepository.save(auditoria);
+    }
+
+    private String construirResumen(Usuario usuario) {
+        return "id=" + usuario.getId()
+                + ", nombre=" + usuario.getNombre()
+                + ", documento=" + usuario.getDocumento()
+                + ", username=" + usuario.getUsername()
+                + ", rol=" + usuario.getRol();
     }
 }

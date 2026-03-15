@@ -88,6 +88,7 @@ public class MovimientoMapper {
         movimiento.setUsuario(usuario);
         movimiento.setBodegaOrigen(bodegaOrigen);
         movimiento.setBodegaDestino(bodegaDestino);
-        movimiento.setDetalles(detalles);
+        movimiento.getDetalles().clear();
+        movimiento.getDetalles().addAll(detalles);
     }
 }

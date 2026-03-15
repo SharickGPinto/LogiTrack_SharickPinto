@@ -19,6 +19,7 @@ public class UsuarioMapper {
                 usuario.getRol()
         );
     }
+
     public Usuario DTOAEntidad(UsuarioRequestDTO dto) {
         if (dto == null) return null;
         Usuario u = new Usuario();
@@ -34,6 +35,7 @@ public class UsuarioMapper {
     public void actualizarEntidadDesdeDTO(Usuario u, UsuarioRequestDTO dto) {
         if (dto == null || u == null) return;
         u.setNombre(dto.nombre());
+        u.setDocumento(dto.documento());
         u.setUsername(dto.username());
         u.setPassword(dto.password());
         u.setRol(dto.rol());
