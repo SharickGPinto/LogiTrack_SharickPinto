@@ -15,7 +15,7 @@ const loginError = document.getElementById('loginError');
 
 const menuItems = document.querySelectorAll('.menu-item');
 const pageTitle = document.getElementById('page-title');
-const searchInput = document.getElementById('tableSearch');
+const searchInput = null;
 const btnNuevo = document.getElementById('btnNuevo');
 
 const statProductos = document.getElementById('statProductos');
@@ -390,19 +390,25 @@ async function cargarMovimientos() {
 function renderAuditoriaRows(auditorias) {
     if (!auditoriaTableBody) return;
 
-    auditoriaTableBody.innerHTML = auditorias.map(auditoria => `
-        <tr>
-            <td>${auditoria.operacion}</td>
-            <td>${formatDate(auditoria.fecha)}</td>
-            <td>${auditoria.nombreUsuario || 'Sin usuario'}</td>
-            <td>${auditoria.entidad || 'Sin entidad'}</td>
-            <td>${auditoria.valorNuevo || auditoria.valorAnterior || 'Sin descripción'}</td>
-        </tr>
-    `).join('');
-
     if (auditorias.length === 0) {
         auditoriaTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay auditorías registradas</td></tr>';
+        return;
     }
+
+    auditoriaTableBody.innerHTML = auditorias.map(auditoria => {
+        const descripcion = auditoria.valorNuevo || auditoria.valorAnterior || 'Sin descripción';
+        const badgeClass = auditoria.operacion === 'INSERT' ? 'text-success' :
+                           auditoria.operacion === 'DELETE' ? 'text-danger' : 'text-warning';
+        return `
+            <tr>
+                <td><span class="fw-bold ${badgeClass}">${auditoria.operacion}</span></td>
+                <td>${formatDate(auditoria.fecha)}</td>
+                <td>${auditoria.nombreUsuario || 'Sin usuario'}</td>
+                <td>${auditoria.entidad || 'Sin entidad'}</td>
+                <td class="small" style="font-family: monospace; word-break: break-word;">${descripcion}</td>
+            </tr>
+        `;
+    }).join('');
 }
 
 async function cargarAuditoria() {
@@ -430,6 +436,9 @@ async function cargarTodo() {
 async function cargarUsuariosEnSelect(selectElement, placeholder) {
     if (!selectElement) return;
 
+    selectElement.disabled = true;
+    selectElement.innerHTML = `<option value="">Cargando...</option>`;
+
     const usuarios = await apiFetch('/api/usuario/public');
     selectElement.innerHTML = `
         <option value="">${placeholder}</option>
@@ -437,6 +446,39 @@ async function cargarUsuariosEnSelect(selectElement, placeholder) {
             <option value="${usuario.id}">${usuario.nombre} (${usuario.username})</option>
         `).join('')}
     `;
+    selectElement.disabled = false;
+}
+
+async function cargarBodegasEnSelect(selectElement, placeholder) {
+    if (!selectElement) return;
+
+    selectElement.disabled = true;
+    selectElement.innerHTML = `<option value="">Cargando...</option>`;
+
+    const bodegas = await apiFetch('/api/bodega/public');
+    selectElement.innerHTML = `
+        <option value="">${placeholder}</option>
+        ${bodegas.map(bodega => `
+            <option value="${bodega.id}">${bodega.nombre}</option>
+        `).join('')}
+    `;
+    selectElement.disabled = false;
+}
+
+async function cargarProductosEnSelect(selectElement, placeholder) {
+    if (!selectElement) return;
+
+    selectElement.disabled = true;
+    selectElement.innerHTML = `<option value="">Cargando...</option>`;
+
+    const productos = await apiFetch('/api/producto/public');
+    selectElement.innerHTML = `
+        <option value="">${placeholder}</option>
+        ${productos.map(producto => `
+            <option value="${producto.id}">${producto.nombre}</option>
+        `).join('')}
+    `;
+    selectElement.disabled = false;
 }
 
 async function cargarBodegasEnSelect(selectElement, placeholder) {
@@ -544,11 +586,19 @@ async function mostrarMovimientoForm() {
 async function filtrarAuditoria() {
     clearFormError(auditoriaFilterError);
 
-    try {
-        const id = auditoriaIdFiltro?.value.trim();
-        const usuario = auditoriaUsuarioFiltro?.value.trim();
-        const operacion = auditoriaOperacionFiltro?.value.trim();
+    const id = auditoriaIdFiltro?.value.trim();
+    const usuario = auditoriaUsuarioFiltro?.value.trim();
+    const operacion = auditoriaOperacionFiltro?.value.trim();
 
+    // Contar cuantos filtros tienen valor
+    const filtrosActivos = [id, usuario, operacion].filter(v => v !== '').length;
+
+    if (filtrosActivos > 1) {
+        setFormError(auditoriaFilterError, 'Usa solo un filtro a la vez: ID, usuario u operación.');
+        return;
+    }
+
+    try {
         let auditorias = [];
 
         if (id) {
@@ -821,6 +871,12 @@ function navigate(sectionId, element) {
     if (sectionId !== 'productos' && sectionId !== 'bodegas' && sectionId !== 'movimientos') {
         ocultarTodosLosFormularios();
     }
+
+    // Mostrar btnNuevo solo donde tiene función
+    const seccionesConNuevo = ['productos', 'bodegas', 'movimientos'];
+    if (btnNuevo) {
+        btnNuevo.style.display = seccionesConNuevo.includes(sectionId) ? '' : 'none';
+    }
 }
 
 btnNuevo.addEventListener('click', async function () {
@@ -832,31 +888,8 @@ btnNuevo.addEventListener('click', async function () {
         await mostrarMovimientoForm();
     } else if (currentSection === 'auditoria') {
         if (auditoriaUsuarioFiltro) auditoriaUsuarioFiltro.focus();
-    } else {
-        alert('Selecciona Productos, Bodegas o Movimientos para registrar información.');
     }
 });
-
-searchInput.addEventListener('keyup', doSearch);
-
-function doSearch() {
-    const filter = searchInput.value.toLowerCase();
-    const inventoryTable = document.getElementById('inventoryTable');
-
-    if (!inventoryTable) return;
-
-    if (filter.length > 0 && currentSection !== 'productos') {
-        const productosBtn = document.querySelector('[data-section="productos"]');
-        navigate('productos', productosBtn);
-    }
-
-    const rows = inventoryTable.querySelectorAll('tbody tr');
-
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(filter) ? '' : 'none';
-    });
-}
 
 window.addEventListener('DOMContentLoaded', async () => {
     const token = getToken();
@@ -864,4 +897,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         showApp(getCurrentUser());
         await cargarTodo();
     }
+    // Ocultar btnNuevo en inicio al cargar
+    if (btnNuevo) btnNuevo.style.display = 'none';
 });

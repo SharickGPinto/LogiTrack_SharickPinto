@@ -8,6 +8,8 @@ import com.s1.LogiTrack.model.Auditoria;
 import com.s1.LogiTrack.model.OperacionAuditoria;
 import com.s1.LogiTrack.model.Usuario;
 import com.s1.LogiTrack.repository.AuditoriaRepository;
+import com.s1.LogiTrack.repository.BodegaRepository;
+import com.s1.LogiTrack.repository.MovimientoRepository;
 import com.s1.LogiTrack.repository.UsuarioRepository;
 import com.s1.LogiTrack.service.UsuarioService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +26,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final AuditoriaRepository auditoriaRepository;
+    private final BodegaRepository bodegaRepository;
+    private final MovimientoRepository movimientoRepository;
 
     @Override
     public UsuarioResponseDTO guardarUsuario(UsuarioRequestDTO dto) {
@@ -73,7 +77,12 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (u == null) {
             throw new EntityNotFoundException("No existe dicho usuario a eliminar");
         }
-
+        if (bodegaRepository.existsByEncargado(u)) {
+            throw new BusinessRuleException("No se puede eliminar el usuario porque es encargado de una o mas bodegas");
+        }
+        if (movimientoRepository.existsByUsuario(u)) {
+            throw new BusinessRuleException("No se puede eliminar el usuario porque tiene movimientos registrados");
+        }
         String valorAnterior = construirResumen(u);
         usuarioRepository.delete(u);
         registrarAuditoria("Usuario", OperacionAuditoria.DELETE, u, valorAnterior, null);

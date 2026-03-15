@@ -42,9 +42,17 @@ public class ProductoServiceImpl implements ProductoService {
             throw new BusinessRuleException("Ya existe un producto con ese nombre en la bodega seleccionada");
         }
 
+        int stockActualBodega = productoRepository.findByBodega(bodega).stream()
+                .mapToInt(p -> p.getStock() != null ? p.getStock() : 0)
+                .sum();
+        if (stockActualBodega + dto.stock() > bodega.getCapacidad()) {
+            throw new BusinessRuleException("No hay capacidad suficiente en la bodega. Capacidad: "
+                    + bodega.getCapacidad() + ", ocupado: " + stockActualBodega
+                    + ", intentas agregar: " + dto.stock());
+        }
+
         Producto producto = productoMapper.DTOAEntidad(dto, bodega);
         Producto productoInsertado = productoRepository.save(producto);
-
         registrarAuditoria("Producto", OperacionAuditoria.INSERT, null, null, construirResumen(productoInsertado));
         BodegaResponseDTO bodegaDTO = bodegaMapper.entidadADTO(productoInsertado.getBodega());
         return productoMapper.entidadADTO(productoInsertado, bodegaDTO);
@@ -54,7 +62,6 @@ public class ProductoServiceImpl implements ProductoService {
     public ProductoResponseDTO actualizarProducto(ProductoRequestDTO dto, Long id) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No existe dicho producto a actualizar"));
-
         Bodega bodega = bodegaRepository.findById(dto.bodegaId())
                 .orElseThrow(() -> new EntityNotFoundException("No existe la bodega"));
 
@@ -66,10 +73,20 @@ public class ProductoServiceImpl implements ProductoService {
             throw new BusinessRuleException("Ya existe otro producto con ese nombre en la bodega seleccionada");
         }
 
+        int stockActualBodega = productoRepository.findByBodega(bodega).stream()
+                .mapToInt(p -> p.getStock() != null ? p.getStock() : 0)
+                .sum();
+        // Al actualizar, restar el stock actual de este mismo producto para no contarlo dos veces
+        int stockSinEsteProducto = stockActualBodega - (producto.getStock() != null ? producto.getStock() : 0);
+        if (stockSinEsteProducto + dto.stock() > bodega.getCapacidad()) {
+            throw new BusinessRuleException("No hay capacidad suficiente en la bodega. Capacidad: "
+                    + bodega.getCapacidad() + ", ocupado por otros: " + stockSinEsteProducto
+                    + ", intentas poner: " + dto.stock());
+        }
+
         String valorAnterior = construirResumen(producto);
         productoMapper.actualizarEntidadDesdeDTO(producto, dto, bodega);
         Producto productoActualizado = productoRepository.save(producto);
-
         registrarAuditoria("Producto", OperacionAuditoria.UPDATE, null, valorAnterior, construirResumen(productoActualizado));
         BodegaResponseDTO bodegaDTO = bodegaMapper.entidadADTO(productoActualizado.getBodega());
         return productoMapper.entidadADTO(productoActualizado, bodegaDTO);

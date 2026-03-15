@@ -1,5 +1,6 @@
 package com.s1.LogiTrack.repository;
 
+import com.s1.LogiTrack.model.Bodega;
 import com.s1.LogiTrack.model.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,4 +13,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     boolean existsByNombre(String nombre);
     Long countByNombre(String nombre);
     List<Producto> findByStockLessThan(Integer stock);
+    boolean existsByBodega(Bodega bodega);
+    List<Producto> findByBodega(Bodega bodega);
 }

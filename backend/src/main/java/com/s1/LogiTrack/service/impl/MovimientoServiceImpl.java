@@ -34,65 +34,80 @@ public class MovimientoServiceImpl implements MovimientoService {
     @Override
     @Transactional
     public MovimientoResponseDTO guardarMovimiento(MovimientoRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
-                .orElseThrow(() -> new EntityNotFoundException("No existe el usuario"));
+            Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+                    .orElseThrow(() -> new EntityNotFoundException("No existe el usuario"));
+            Bodega bodegaOrigen = obtenerBodega(dto.bodegaOrigenId(), "No existe la bodega origen");
+            Bodega bodegaDestino = obtenerBodega(dto.bodegaDestinoId(), "No existe la bodega destino");
+            validarConfiguracionMovimiento(dto.tipoMovimiento(), bodegaOrigen, bodegaDestino);
 
-        Bodega bodegaOrigen = obtenerBodega(dto.bodegaOrigenId(), "No existe la bodega origen");
-        Bodega bodegaDestino = obtenerBodega(dto.bodegaDestinoId(), "No existe la bodega destino");
+            // PASO 1: validar todo antes de modificar nada
+            List<Producto> productosValidados = new ArrayList<>();
+            for (MovimientoDetalleRequestDTO detalleDTO : dto.detalles()) {
+                Producto producto = productoRepository.findById(detalleDTO.productoId())
+                        .orElseThrow(() -> new EntityNotFoundException("No existe el producto"));
+                validarProductoSegunMovimiento(dto.tipoMovimiento(), producto, bodegaOrigen, bodegaDestino);
+                if (dto.tipoMovimiento() == TipoMovimiento.SALIDA || dto.tipoMovimiento() == TipoMovimiento.TRANSFERENCIA) {
+                    if (producto.getStock() < detalleDTO.cantidad()) {
+                        throw new BusinessRuleException("No hay stock suficiente para el producto: " + producto.getNombre());
+                    }
+                }
+                productosValidados.add(producto);
+            }
 
-        validarConfiguracionMovimiento(dto.tipoMovimiento(), bodegaOrigen, bodegaDestino);
+            // PASO 2: todo valido, crear y guardar
+            List<MovimientoDetalle> detalles = new ArrayList<>();
+            Movimiento movimiento = movimientoMapper.DTOAEntidad(dto, usuario, bodegaOrigen, bodegaDestino, detalles);
 
-        List<MovimientoDetalle> detalles = new ArrayList<>();
-        Movimiento movimiento = movimientoMapper.DTOAEntidad(dto, usuario, bodegaOrigen, bodegaDestino, detalles);
+            for (int i = 0; i < dto.detalles().size(); i++) {
+                MovimientoDetalleRequestDTO detalleDTO = dto.detalles().get(i);
+                Producto producto = productosValidados.get(i);
+                aplicarMovimientoEnStock(dto.tipoMovimiento(), producto, bodegaDestino, detalleDTO.cantidad());
+                MovimientoDetalle detalle = movimientoDetalleMapper.DTOAEntidad(detalleDTO, producto, movimiento);
+                detalles.add(detalle);
+            }
 
-        for (MovimientoDetalleRequestDTO detalleDTO : dto.detalles()) {
-            Producto producto = productoRepository.findById(detalleDTO.productoId())
-                    .orElseThrow(() -> new EntityNotFoundException("No existe el producto"));
-
-            validarProductoSegunMovimiento(dto.tipoMovimiento(), producto, bodegaOrigen, bodegaDestino);
-            aplicarMovimientoEnStock(dto.tipoMovimiento(), producto, bodegaDestino, detalleDTO.cantidad());
-
-            MovimientoDetalle detalle = movimientoDetalleMapper.DTOAEntidad(detalleDTO, producto, movimiento);
-            detalles.add(detalle);
+            Movimiento movimientoInsertado = movimientoRepository.save(movimiento);
+            registrarAuditoria("Movimiento", OperacionAuditoria.INSERT, usuario, null, construirResumen(movimientoInsertado));
+            return movimientoMapper.entidadADTO(movimientoInsertado);
         }
-
-        Movimiento movimientoInsertado = movimientoRepository.save(movimiento);
-        registrarAuditoria("Movimiento", OperacionAuditoria.INSERT, usuario, null, construirResumen(movimientoInsertado));
-        return movimientoMapper.entidadADTO(movimientoInsertado);
-    }
 
     @Override
     @Transactional
     public MovimientoResponseDTO actualizarMovimiento(MovimientoRequestDTO dto, Long id) {
         Movimiento movimiento = movimientoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No existe dicho movimiento a actualizar"));
-
         String valorAnterior = construirResumen(movimiento);
-        revertirMovimientoEnStock(movimiento);
 
         Usuario usuario = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new EntityNotFoundException("No existe el usuario"));
-
         Bodega bodegaOrigen = obtenerBodega(dto.bodegaOrigenId(), "No existe la bodega origen");
         Bodega bodegaDestino = obtenerBodega(dto.bodegaDestinoId(), "No existe la bodega destino");
-
         validarConfiguracionMovimiento(dto.tipoMovimiento(), bodegaOrigen, bodegaDestino);
 
-        List<MovimientoDetalle> detalles = new ArrayList<>();
+        // PASO 1: validar productos del nuevo estado antes de revertir
+        List<Producto> productosNuevos = new ArrayList<>();
         for (MovimientoDetalleRequestDTO detalleDTO : dto.detalles()) {
             Producto producto = productoRepository.findById(detalleDTO.productoId())
                     .orElseThrow(() -> new EntityNotFoundException("No existe el producto"));
-
             validarProductoSegunMovimiento(dto.tipoMovimiento(), producto, bodegaOrigen, bodegaDestino);
-            aplicarMovimientoEnStock(dto.tipoMovimiento(), producto, bodegaDestino, detalleDTO.cantidad());
+            productosNuevos.add(producto);
+        }
 
+        // PASO 2: validaciones ok, ahora si revertir
+        revertirMovimientoEnStock(movimiento);
+
+        // PASO 3: aplicar nuevo estado
+        List<MovimientoDetalle> detalles = new ArrayList<>();
+        for (int i = 0; i < dto.detalles().size(); i++) {
+            MovimientoDetalleRequestDTO detalleDTO = dto.detalles().get(i);
+            Producto producto = productosNuevos.get(i);
+            aplicarMovimientoEnStock(dto.tipoMovimiento(), producto, bodegaDestino, detalleDTO.cantidad());
             MovimientoDetalle detalle = movimientoDetalleMapper.DTOAEntidad(detalleDTO, producto, movimiento);
             detalles.add(detalle);
         }
 
         movimientoMapper.actualizarEntidadDesdeDTO(movimiento, dto, usuario, bodegaOrigen, bodegaDestino, detalles);
         Movimiento movimientoActualizado = movimientoRepository.save(movimiento);
-
         registrarAuditoria("Movimiento", OperacionAuditoria.UPDATE, usuario, valorAnterior, construirResumen(movimientoActualizado));
         return movimientoMapper.entidadADTO(movimientoActualizado);
     }

@@ -10,6 +10,7 @@ import com.s1.LogiTrack.model.OperacionAuditoria;
 import com.s1.LogiTrack.model.Usuario;
 import com.s1.LogiTrack.repository.AuditoriaRepository;
 import com.s1.LogiTrack.repository.BodegaRepository;
+import com.s1.LogiTrack.repository.ProductoRepository;
 import com.s1.LogiTrack.repository.UsuarioRepository;
 import com.s1.LogiTrack.service.BodegaService;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +28,8 @@ public class BodegaServiceImpl implements BodegaService {
     private final BodegaMapper bodegaMapper;
     private final UsuarioRepository usuarioRepository;
     private final AuditoriaRepository auditoriaRepository;
+    private final ProductoRepository productoRepository;
+
 
     @Override
     public BodegaResponseDTO guardarBodega(BodegaRequestDTO dto) {
@@ -71,7 +74,9 @@ public class BodegaServiceImpl implements BodegaService {
     public void eliminarBodega(Long id) {
         Bodega bodega = bodegaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No existe dicha bodega a eliminar"));
-
+        if (productoRepository.existsByBodega(bodega)) {
+            throw new BusinessRuleException("No se puede eliminar la bodega porque tiene productos registrados");
+        }
         String valorAnterior = construirResumen(bodega);
         Usuario usuario = bodega.getEncargado();
         bodegaRepository.delete(bodega);
