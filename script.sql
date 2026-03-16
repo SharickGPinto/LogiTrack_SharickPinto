@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS logitrack_db;
-USE logitrack_db;
+CREATE DATABASE IF NOT EXISTS sharicklogitrack_db;
+USE sharicklogitrack_db;
 
 -- 1. Tabla de Usuarios (Con Enums de Rol y campos UNIQUE)
 CREATE TABLE usuarios (
@@ -67,7 +67,7 @@ CREATE TABLE auditorias (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
-USE logitrack_db;
+USE sharicklogitrack_db;
 
 -- =========================================
 -- INSERTS PARA LOGITRACK

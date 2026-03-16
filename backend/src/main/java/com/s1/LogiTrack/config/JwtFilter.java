@@ -4,13 +4,14 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
-@Component// Le digo a Spring que este filtro es un componente manejado por el contenedor
+@Component // Le digo a Spring que este filtro es un componente manejado por el contenedor
 @RequiredArgsConstructor
 public class JwtFilter extends GenericFilter {
     /*
@@ -35,7 +36,6 @@ public class JwtFilter extends GenericFilter {
         // Obtengo el header Authorization
         String header = http.getHeader("Authorization");
 
-
         /*
          * Verifico:
          * 1) Que el header exista
@@ -49,6 +49,7 @@ public class JwtFilter extends GenericFilter {
 
             // Valido el token usando mi servicio
             String username = jwtService.validateToken(token);
+            String rol = jwtService.extractRol(token);
 
             /*
              * Si el username no es null significa que:
@@ -62,14 +63,16 @@ public class JwtFilter extends GenericFilter {
                  * "Este usuario ya está autenticado"
                  *
                  * No paso contraseña porque en JWT ya no la necesito.
-                 * Tampoco paso roles todavía (por eso uso lista vacía).
+                 * Aquí sí paso los roles para que Spring Security
+                 * pueda aplicar hasRole("ADMIN").
                  */
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                //En vez de lista vacía se pasan los respectivos roles.
-                                Collections.emptyList()
+                                rol != null
+                                        ? List.of(new SimpleGrantedAuthority("ROLE_" + rol))
+                                        : List.of()
                         );
                 /*
                  * Aquí es donde realmente le digo a Spring Security:

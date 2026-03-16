@@ -34,12 +34,13 @@ public class JwtService {
     }
 
     // Generar token
-    public String generateToken(String username) {
+    public String generateToken(String username, String rol) {
         /*
          * Aquí construyo el JWT.
          *
          * El token tendrá:
          * - Subject → el username
+         * - Rol del usuario
          * - Fecha de creación
          * - Fecha de expiración
          * - Firma digital
@@ -47,6 +48,9 @@ public class JwtService {
         return Jwts.builder()
                 // Información principal del token (quién es el usuario)
                 .setSubject(username)
+
+                // Aquí guardo el rol dentro del token
+                .claim("rol", rol)
 
                 // Fecha en que se crea el token
                 .setIssuedAt(new Date())
@@ -96,6 +100,21 @@ public class JwtService {
              * Lanza excepción y retorna en null.
              */
 
+            return null;
+        }
+    }
+
+    public String extractRol(String token) {
+        try {
+            Object rol = Jwts.parserBuilder()
+                    .setSigningKey(getKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("rol");
+
+            return rol != null ? rol.toString() : null;
+        } catch (Exception e) {
             return null;
         }
     }

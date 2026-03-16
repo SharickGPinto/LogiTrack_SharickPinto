@@ -12,6 +12,7 @@ public interface AuditoriaRepository extends JpaRepository<Auditoria, Long> {
 
     List<Auditoria> findByUsuario_NombreIgnoreCase(String nombre);
     List<Auditoria> findByOperacion(OperacionAuditoria operacion);
+    boolean existsByUsuario(Usuario usuario);
 
 
 }

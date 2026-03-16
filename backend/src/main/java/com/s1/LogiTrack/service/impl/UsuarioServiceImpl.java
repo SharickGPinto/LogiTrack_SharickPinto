@@ -77,15 +77,20 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (u == null) {
             throw new EntityNotFoundException("No existe dicho usuario a eliminar");
         }
+
         if (bodegaRepository.existsByEncargado(u)) {
             throw new BusinessRuleException("No se puede eliminar el usuario porque es encargado de una o mas bodegas");
         }
+
         if (movimientoRepository.existsByUsuario(u)) {
             throw new BusinessRuleException("No se puede eliminar el usuario porque tiene movimientos registrados");
         }
-        String valorAnterior = construirResumen(u);
+
+        if (auditoriaRepository.existsByUsuario(u)) {
+            throw new BusinessRuleException("No se puede eliminar el usuario porque tiene auditorías registradas");
+        }
+
         usuarioRepository.delete(u);
-        registrarAuditoria("Usuario", OperacionAuditoria.DELETE, u, valorAnterior, null);
     }
 
     @Override

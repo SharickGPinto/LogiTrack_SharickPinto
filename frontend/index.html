@@ -72,10 +72,8 @@
 
                 <div class="mb-4 text-start">
                     <label class="form-label small fw-bold">Rol</label>
-                    <select class="form-control" id="registerRole" required>
-                        <option value="">Seleccione un rol</option>
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="EMPLEADO">EMPLEADO</option>
+                    <select class="form-control" id="registerRole" required disabled>
+                        <option value="EMPLEADO" selected>EMPLEADO</option>
                     </select>
                 </div>
 
@@ -98,6 +96,10 @@
             <nav class="sidebar-nav">
                 <div class="menu-item active" data-section="inicio">
                     <i class="fas fa-house"></i> Inicio
+                </div>
+
+                <div class="menu-item" data-section="usuarios">
+                    <i class="fas fa-users"></i> Usuarios
                 </div>
 
                 <div class="menu-item" data-section="bodegas">
@@ -127,12 +129,17 @@
             </div>
         </aside>
 
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <div class="main-content">
             <header class="top-header">
-                <div>
+                <div class="header-left">
+                    <button type="button" class="mobile-menu-btn" id="menuToggle" aria-label="Abrir menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <h5 class="mb-0 fw-bold" id="page-title">Inicio</h5>
                 </div>
-                <div class="d-flex gap-3 align-items-center">
+                <div class="d-flex gap-3 align-items-center header-actions">
                     <button class="btn btn-main btn-sm" id="btnNuevo">
                         <i class="fas fa-plus"></i> Nuevo
                     </button>
@@ -218,6 +225,59 @@
                     </div>
                 </div>
 
+                <div id="section-usuarios" class="content-section">
+                    <div class="table-box mb-4">
+                        <h6 class="fw-bold mb-3">Buscar Usuario</h6>
+
+                        <form id="usuariosFilterForm">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Buscar por documento</label>
+                                    <input type="text" class="form-control" id="usuarioDocumentoFiltro"
+                                        placeholder="Ej: 1098765432">
+                                </div>
+
+                                <div class="col-md-6 d-flex gap-2">
+                                    <button type="submit" class="btn btn-main">Buscar</button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        id="clearUsuariosFiltersBtn">Limpiar</button>
+                                </div>
+                            </div>
+
+                            <div class="small text-muted mt-2">Si dejas el campo vacío, se listan todos los usuarios.
+                            </div>
+                            <div id="usuariosFilterError" class="text-danger small mt-3 hidden"></div>
+                        </form>
+                    </div>
+
+                    <div class="table-box">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0">Listado de Usuarios</h6>
+                            <span class="text-muted small" id="usuariosCountText">Mostrando: 0 registros</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Documento</th>
+                                        <th>Username</th>
+                                        <th>Rol</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usuariosTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Cargando usuarios...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="section-bodegas" class="content-section">
                     <div class="table-box mb-4 hidden" id="bodegaFormBox">
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -257,7 +317,7 @@
                             <div id="bodegaFormError" class="text-danger small mt-3 hidden"></div>
 
                             <div class="mt-4 d-flex gap-2">
-                               <button type="submit" class="btn btn-main" id="bodegaSubmitBtn">Guardar bodega</button>
+                                <button type="submit" class="btn btn-main" id="bodegaSubmitBtn">Guardar bodega</button>
                                 <button type="button" class="btn btn-outline-secondary"
                                     id="cancelBodegaBtnBottom">Cancelar</button>
                             </div>
@@ -337,7 +397,8 @@
                             <div id="productoFormError" class="text-danger small mt-3 hidden"></div>
 
                             <div class="mt-4 d-flex gap-2">
-                                <button type="submit" class="btn btn-main" id="productoSubmitBtn">Guardar producto</button>
+                                <button type="submit" class="btn btn-main" id="productoSubmitBtn">Guardar
+                                    producto</button>
                                 <button type="button" class="btn btn-outline-secondary"
                                     id="cancelProductoBtnBottom">Cancelar</button>
                             </div>

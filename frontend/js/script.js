@@ -11,12 +11,15 @@ const registerCard = document.getElementById('register-card');
 const showRegister = document.getElementById('showRegister');
 const showLoginLink = document.getElementById('showLogin');
 const registerForm = document.getElementById('registerForm');
+const registerRole = document.getElementById('registerRole');
 const loginError = document.getElementById('loginError');
 
 const menuItems = document.querySelectorAll('.menu-item');
 const pageTitle = document.getElementById('page-title');
 const searchInput = null;
 const btnNuevo = document.getElementById('btnNuevo');
+const menuToggle = document.getElementById('menuToggle');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
 
 const statProductos = document.getElementById('statProductos');
 const statBodegas = document.getElementById('statBodegas');
@@ -26,10 +29,12 @@ const statAuditorias = document.getElementById('statAuditorias');
 const inicioStockBajo = document.getElementById('inicioStockBajo');
 const inicioMovimientosRecientes = document.getElementById('inicioMovimientosRecientes');
 
+const usuariosCountText = document.getElementById('usuariosCountText');
 const bodegasCountText = document.getElementById('bodegasCountText');
 const productosCountText = document.getElementById('productosCountText');
 const auditoriasCountText = document.getElementById('auditoriasCountText');
 
+const usuariosTableBody = document.getElementById('usuariosTableBody');
 const bodegasTableBody = document.getElementById('bodegasTableBody');
 const productosTableBody = document.getElementById('productosTableBody');
 const auditoriaTableBody = document.getElementById('auditoriaTableBody');
@@ -70,6 +75,11 @@ const auditoriaOperacionFiltro = document.getElementById('auditoriaOperacionFilt
 const auditoriaFilterError = document.getElementById('auditoriaFilterError');
 const clearAuditoriaFiltersBtn = document.getElementById('clearAuditoriaFiltersBtn');
 
+const usuariosFilterForm = document.getElementById('usuariosFilterForm');
+const usuarioDocumentoFiltro = document.getElementById('usuarioDocumentoFiltro');
+const usuariosFilterError = document.getElementById('usuariosFilterError');
+const clearUsuariosFiltersBtn = document.getElementById('clearUsuariosFiltersBtn');
+
 let bodegaEditId = null;
 let productoEditId = null;
 
@@ -82,6 +92,7 @@ let currentSection = 'inicio';
 
 const titles = {
     inicio: 'Inicio',
+    usuarios: 'Gestión de Usuarios',
     bodegas: 'Gestión de Bodegas',
     productos: 'Gestión de Productos',
     movimientos: 'Movimientos de Inventario',
@@ -96,14 +107,43 @@ function getCurrentUser() {
     return localStorage.getItem('currentUser') || 'Empleado';
 }
 
-function setSession(token, username) {
+function getCurrentRole() {
+    return localStorage.getItem('currentRole') || 'EMPLEADO';
+}
+
+function isAdmin() {
+    return getCurrentRole() === 'ADMIN';
+}
+
+function setSession(token, username, rol) {
     localStorage.setItem('token', token);
     localStorage.setItem('currentUser', username);
+    localStorage.setItem('currentRole', rol || 'EMPLEADO');
 }
 
 function clearSession() {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentRole');
+}
+
+function isMobileView() {
+    return window.innerWidth <= 991;
+}
+
+function openSidebarMobile() {
+    if (!appContainer || !isMobileView()) return;
+    appContainer.classList.add('sidebar-open');
+}
+
+function closeSidebarMobile() {
+    if (!appContainer) return;
+    appContainer.classList.remove('sidebar-open');
+}
+
+function toggleSidebarMobile() {
+    if (!appContainer || !isMobileView()) return;
+    appContainer.classList.toggle('sidebar-open');
 }
 
 function mostrarErrorLogin(mensaje) {
@@ -128,6 +168,14 @@ function clearFormError(element) {
     if (!element) return;
     element.textContent = '';
     element.classList.add('hidden');
+}
+
+function configurarRolRegistro() {
+    if (!registerRole) return;
+
+    registerRole.innerHTML = '<option value="EMPLEADO">EMPLEADO</option>';
+    registerRole.value = 'EMPLEADO';
+    registerRole.setAttribute('disabled', 'disabled');
 }
 
 async function apiFetch(endpoint, options = {}) {
@@ -321,6 +369,67 @@ async function cargarDashboard() {
         if (inicioMovimientosRecientes) inicioMovimientosRecientes.innerHTML = `<div class="text-danger">${error.message}</div>`;
     }
 }
+function renderUsuariosRows(usuarios) {
+    if (!usuariosTableBody) return;
+
+    if (!usuarios || usuarios.length === 0) {
+        usuariosTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay usuarios registrados</td></tr>';
+        return;
+    }
+
+    usuariosTableBody.innerHTML = usuarios.map(usuario => `
+        <tr>
+            <td>${usuario.id}</td>
+            <td><strong>${usuario.nombre}</strong></td>
+            <td>${usuario.documento}</td>
+            <td>${usuario.username}</td>
+            <td><span class="status-badge status-ok">${usuario.rol}</span></td>
+            <td>
+                ${isAdmin() && usuario.username !== getCurrentUser() ? `
+                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario('${usuario.documento}', '${usuario.nombre}')">
+                        Eliminar
+                    </button>
+                ` : '<span class="text-muted small">Sin acciones</span>'}
+            </td>
+        </tr>
+    `).join('');
+}
+async function cargarUsuarios() {
+    try {
+        const usuarios = await apiFetch('/api/usuario/public');
+        if (usuariosCountText) usuariosCountText.innerText = `Mostrando: ${usuarios.length} registros`;
+        renderUsuariosRows(usuarios);
+    } catch (error) {
+        if (usuariosTableBody) {
+            usuariosTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${error.message}</td></tr>`;
+        }
+    }
+}
+
+async function filtrarUsuarios() {
+    clearFormError(usuariosFilterError);
+
+    const documento = usuarioDocumentoFiltro?.value.trim();
+
+    try {
+        let usuarios = [];
+
+        if (documento) {
+            const usuario = await apiFetch(`/api/usuario/${encodeURIComponent(documento)}`);
+            usuarios = [usuario];
+        } else {
+            usuarios = await apiFetch('/api/usuario/public');
+        }
+
+        if (usuariosCountText) usuariosCountText.innerText = `Mostrando: ${usuarios.length} registros`;
+        renderUsuariosRows(usuarios);
+    } catch (error) {
+        setFormError(usuariosFilterError, error.message);
+        if (usuariosTableBody) {
+            usuariosTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${error.message}</td></tr>`;
+        }
+    }
+}
 
 async function cargarBodegas() {
     try {
@@ -463,6 +572,7 @@ async function cargarAuditoria() {
 async function cargarTodo() {
     await Promise.all([
         cargarDashboard(),
+        cargarUsuarios(),
         cargarBodegas(),
         cargarProductos(),
         cargarMovimientos(),
@@ -758,6 +868,21 @@ async function eliminarMovimiento(id) {
         alert(error.message);
     }
 }
+async function eliminarUsuario(documento, nombre) {
+    if (!confirm(`¿Seguro que deseas eliminar al usuario "${nombre}"?`)) return;
+
+    try {
+        await apiFetch(`/api/usuario/${encodeURIComponent(documento)}`, {
+            method: 'DELETE'
+        });
+
+        alert('Usuario eliminado correctamente');
+        await cargarUsuarios();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
 
 loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -773,7 +898,7 @@ loginForm.addEventListener('submit', async function (e) {
             body: JSON.stringify({ username, password })
         });
 
-        setSession(response.token, username);
+     setSession(response.token, username, response.rol);
         showApp(username);
         await cargarTodo();
     } catch (error) {
@@ -785,6 +910,8 @@ if (showRegister) {
     showRegister.addEventListener('click', function (e) {
         e.preventDefault();
         limpiarErrorLogin();
+        configurarRolRegistro();
+    closeSidebarMobile();
         loginCard.classList.add('hidden');
         registerCard.classList.remove('hidden');
     });
@@ -807,7 +934,7 @@ if (registerForm) {
         const documento = document.getElementById('registerDocument').value.trim();
         const username = document.getElementById('registerUser').value.trim();
         const password = document.getElementById('registerPassword').value.trim();
-        const rol = document.getElementById('registerRole').value;
+        const rol = 'EMPLEADO';
 
         try {
             await apiFetch('/api/usuario', {
@@ -936,6 +1063,21 @@ if (movimientoForm) {
     });
 }
 
+if (usuariosFilterForm) {
+    usuariosFilterForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await filtrarUsuarios();
+    });
+}
+
+if (clearUsuariosFiltersBtn) {
+    clearUsuariosFiltersBtn.addEventListener('click', async function () {
+        if (usuarioDocumentoFiltro) usuarioDocumentoFiltro.value = '';
+        clearFormError(usuariosFilterError);
+        await cargarUsuarios();
+    });
+}
+
 if (auditoriaFilterForm) {
     auditoriaFilterForm.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -977,11 +1119,24 @@ if (cancelMovimientoBtnBottom) {
     cancelMovimientoBtnBottom.addEventListener('click', ocultarTodosLosFormularios);
 }
 
+if (menuToggle) {
+    menuToggle.addEventListener('click', function () {
+        toggleSidebarMobile();
+    });
+}
+
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', function () {
+        closeSidebarMobile();
+    });
+}
+
 logoutBtn.addEventListener('click', function (e) {
     e.preventDefault();
     clearSession();
     limpiarErrorLogin();
     ocultarTodosLosFormularios();
+    closeSidebarMobile();
     showLogin();
     loginForm.reset();
 });
@@ -1018,6 +1173,8 @@ function navigate(sectionId, element) {
     if (btnNuevo) {
         btnNuevo.style.display = seccionesConNuevo.includes(sectionId) ? '' : 'none';
     }
+
+    closeSidebarMobile();
 }
 
 btnNuevo.addEventListener('click', async function () {
@@ -1032,7 +1189,16 @@ btnNuevo.addEventListener('click', async function () {
     }
 });
 
+window.addEventListener('resize', function () {
+    if (!isMobileView()) {
+        closeSidebarMobile();
+    }
+});
+
 window.addEventListener('DOMContentLoaded', async () => {
+    configurarRolRegistro();
+    closeSidebarMobile();
+
     const token = getToken();
     if (token) {
         showApp(getCurrentUser());
