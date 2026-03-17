@@ -1,3 +1,4 @@
+DROP DATABASE sharicklogitrack_db;
 CREATE DATABASE IF NOT EXISTS sharicklogitrack_db;
 USE sharicklogitrack_db;
 
