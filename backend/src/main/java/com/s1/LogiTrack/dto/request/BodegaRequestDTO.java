@@ -22,3 +22,5 @@ public record BodegaRequestDTO (
         Long encargadoId
 ) {
 }
+
+//los datos que pide bodega para que el usuario lo registre o complete una bodega

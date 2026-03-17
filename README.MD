@@ -4,9 +4,11 @@
 
 ## Tabla de Contenido
 
-<h6 align=center> 1. Introducción </h6> <h6 align=center> 2. Caso de Estudio </h6> <h6 align=center> 3. Descripción del proyecto </h6> <h6 align=center> 4. Requerimientos funcionales del sistema </h6> <h6 align=center> 5. Estructura del proyecto </h6> <h6 align=center> 6. Arquitectura general del backend </h6> <h6 align=center> 7. Modelo de datos del sistema </h6> <h6 align=center> 8. Configuración e instalación </h6> <h6 align=center> 9. Documentación de endpoints </h6> <h6 align=center> 10. Validaciones y comportamiento general </h6> <h6 align=center> 11. Swagger y pruebas de la API </h6> <h6 align=center> 12. Observaciones sobre el estado actual del proyecto </h6> <h6 align=center> 13. Conclusión </h6>
-
----
+<h6 align=center> 1. Introducción </h6> 
+<h6 align=center> 2. Caso de Estudio </h6> 
+<h6 align=center> 3. Descripción del proyecto </h6>
+<h6 align=center> 4. Requerimientos funcionales del sistema </h6>
+<h6 align=center> 5. Evidencias de funcionamiento </h6> 
 
 ## 1. Introducción
 

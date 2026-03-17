@@ -39,3 +39,5 @@ public class Movimiento {
     @OneToMany(mappedBy = "movimiento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovimientoDetalle> detalles = new ArrayList<>();
 }
+//aca se crea la entidad movimiendo para el sistema
+//que esta mappeado con la base de datos

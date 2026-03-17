@@ -41,3 +41,5 @@ public class BodegaMapper {
         b.setEncargado(encargado);
     }
 }
+// Clase encargada de convertir los datos entre la entidad Bodega
+// y sus DTO, para facilitar su uso en la capa service.

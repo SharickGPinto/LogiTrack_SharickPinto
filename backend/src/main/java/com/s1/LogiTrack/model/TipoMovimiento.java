@@ -7,3 +7,4 @@ public enum TipoMovimiento {
     TRANSFERENCIA
 
 }
+// el enum de tipo de movimiento manejados por el sistema

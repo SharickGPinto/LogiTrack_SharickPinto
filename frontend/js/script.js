@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8080';
+const API_BASE = `http://${window.location.hostname}:8080`;
 
 const loginForm = document.getElementById('loginForm');
 const loginView = document.getElementById('login-view');
@@ -16,7 +16,6 @@ const loginError = document.getElementById('loginError');
 
 const menuItems = document.querySelectorAll('.menu-item');
 const pageTitle = document.getElementById('page-title');
-const searchInput = null;
 const btnNuevo = document.getElementById('btnNuevo');
 const menuToggle = document.getElementById('menuToggle');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -80,14 +79,13 @@ const usuarioDocumentoFiltro = document.getElementById('usuarioDocumentoFiltro')
 const usuariosFilterError = document.getElementById('usuariosFilterError');
 const clearUsuariosFiltersBtn = document.getElementById('clearUsuariosFiltersBtn');
 
-let bodegaEditId = null;
-let productoEditId = null;
-
 const bodegaFormTitulo = document.getElementById('bodegaFormTitulo');
 const bodegaSubmitBtn = document.getElementById('bodegaSubmitBtn');
 const productoFormTitulo = document.getElementById('productoFormTitulo');
 const productoSubmitBtn = document.getElementById('productoSubmitBtn');
 
+let bodegaEditId = null;
+let productoEditId = null;
 let currentSection = 'inicio';
 
 const titles = {
@@ -172,7 +170,6 @@ function clearFormError(element) {
 
 function configurarRolRegistro() {
     if (!registerRole) return;
-
     registerRole.innerHTML = '<option value="EMPLEADO">EMPLEADO</option>';
     registerRole.value = 'EMPLEADO';
     registerRole.setAttribute('disabled', 'disabled');
@@ -302,7 +299,9 @@ function renderMovimientosRecientes(movimientos) {
 }
 
 function showApp(username) {
-    displayUser.innerText = username || 'Empleado';
+    if (displayUser) displayUser.innerText = username || 'Empleado';
+    if (!loginView || !appContainer) return;
+
     loginView.style.opacity = '0';
     loginView.style.transition = '0.5s';
 
@@ -313,11 +312,11 @@ function showApp(username) {
 }
 
 function showLogin() {
-    loginView.classList.remove('hidden');
-    appContainer.classList.add('hidden');
-    loginView.style.opacity = '1';
-    displayUser.innerText = 'Empleado';
-    pageTitle.innerText = 'Inicio';
+    if (loginView) loginView.classList.remove('hidden');
+    if (appContainer) appContainer.classList.add('hidden');
+    if (loginView) loginView.style.opacity = '1';
+    if (displayUser) displayUser.innerText = 'Empleado';
+    if (pageTitle) pageTitle.innerText = 'Inicio';
     ocultarTodosLosFormularios();
 }
 
@@ -334,9 +333,9 @@ function ocultarTodosLosFormularios() {
     clearFormError(bodegaFormError);
     clearFormError(movimientoFormError);
 
-    // Resetear modo edicion
     bodegaEditId = null;
     productoEditId = null;
+
     if (bodegaFormTitulo) bodegaFormTitulo.innerText = 'Registrar Bodega';
     if (bodegaSubmitBtn) bodegaSubmitBtn.innerText = 'Guardar bodega';
     if (productoFormTitulo) productoFormTitulo.innerText = 'Registrar Producto';
@@ -369,6 +368,7 @@ async function cargarDashboard() {
         if (inicioMovimientosRecientes) inicioMovimientosRecientes.innerHTML = `<div class="text-danger">${error.message}</div>`;
     }
 }
+
 function renderUsuariosRows(usuarios) {
     if (!usuariosTableBody) return;
 
@@ -386,7 +386,7 @@ function renderUsuariosRows(usuarios) {
             <td><span class="status-badge status-ok">${usuario.rol}</span></td>
             <td>
                 ${isAdmin() && usuario.username !== getCurrentUser() ? `
-                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario('${usuario.documento}', '${usuario.nombre}')">
+                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario('${usuario.documento}', '${usuario.nombre.replace(/'/g, "\\'")}')">
                         Eliminar
                     </button>
                 ` : '<span class="text-muted small">Sin acciones</span>'}
@@ -394,6 +394,7 @@ function renderUsuariosRows(usuarios) {
         </tr>
     `).join('');
 }
+
 async function cargarUsuarios() {
     try {
         const usuarios = await apiFetch('/api/usuario/public');
@@ -401,7 +402,7 @@ async function cargarUsuarios() {
         renderUsuariosRows(usuarios);
     } catch (error) {
         if (usuariosTableBody) {
-            usuariosTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${error.message}</td></tr>`;
+            usuariosTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${error.message}</td></tr>`;
         }
     }
 }
@@ -426,7 +427,7 @@ async function filtrarUsuarios() {
     } catch (error) {
         setFormError(usuariosFilterError, error.message);
         if (usuariosTableBody) {
-            usuariosTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${error.message}</td></tr>`;
+            usuariosTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${error.message}</td></tr>`;
         }
     }
 }
@@ -441,6 +442,7 @@ async function cargarBodegas() {
                 bodegasTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay bodegas registradas</td></tr>';
                 return;
             }
+
             bodegasTableBody.innerHTML = bodegas.map(bodega => `
                 <tr>
                     <td>${bodega.id}</td>
@@ -452,7 +454,7 @@ async function cargarBodegas() {
                         <button class="btn btn-sm btn-outline-primary me-1" onclick="editarBodega(${bodega.id})">
                             <i class="fas fa-pen"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarBodega(${bodega.id}, '${bodega.nombre}')">
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarBodega(${bodega.id}, '${bodega.nombre.replace(/'/g, "\\'")}')">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -476,8 +478,10 @@ async function cargarProductos() {
                 productosTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay productos registrados</td></tr>';
                 return;
             }
+
             productosTableBody.innerHTML = productos.map(producto => {
                 const status = getProductStatus(producto.stock);
+                const nombreSeguro = (producto.nombre || '').replace(/'/g, "\\'");
                 return `
                     <tr>
                         <td>${producto.id}</td>
@@ -490,7 +494,7 @@ async function cargarProductos() {
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="editarProducto(${producto.id})">
                                 <i class="fas fa-pen"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(${producto.id}, '${producto.nombre}')">
+                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(${producto.id}, '${nombreSeguro}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -514,13 +518,14 @@ async function cargarMovimientos() {
                 movimientosList.innerHTML = '<div class="text-center text-muted py-3">No hay movimientos registrados</div>';
                 return;
             }
+
             movimientosList.innerHTML = movimientos.map(movimiento => `
-                <div class="p-3 mb-2 bg-light border-start ${getMovimientoClass(movimiento.tipoMovimiento)} border-4 d-flex justify-content-between align-items-start">
+                <div class="p-3 mb-2 bg-light border-start ${getMovimientoClass(movimiento.tipoMovimiento)} border-4 d-flex justify-content-between align-items-start flex-column flex-md-row gap-2">
                     <div>
                         <strong>${movimiento.tipoMovimiento}:</strong> ${buildMovimientoText(movimiento)}
                         <div class="text-muted small mt-1">${formatDate(movimiento.fecha)} | Usuario: ${movimiento.nombreUsuario || 'Sin usuario'}</div>
                     </div>
-                    <button class="btn btn-sm btn-outline-danger ms-3 flex-shrink-0" onclick="eliminarMovimiento(${movimiento.id})">
+                    <button class="btn btn-sm btn-outline-danger ms-md-3 flex-shrink-0" onclick="eliminarMovimiento(${movimiento.id})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -536,15 +541,19 @@ async function cargarMovimientos() {
 function renderAuditoriaRows(auditorias) {
     if (!auditoriaTableBody) return;
 
-    if (auditorias.length === 0) {
+    if (!auditorias || auditorias.length === 0) {
         auditoriaTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay auditorías registradas</td></tr>';
         return;
     }
 
     auditoriaTableBody.innerHTML = auditorias.map(auditoria => {
         const descripcion = auditoria.valorNuevo || auditoria.valorAnterior || 'Sin descripción';
-        const badgeClass = auditoria.operacion === 'INSERT' ? 'text-success' :
-                           auditoria.operacion === 'DELETE' ? 'text-danger' : 'text-warning';
+        const badgeClass = auditoria.operacion === 'INSERT'
+            ? 'text-success'
+            : auditoria.operacion === 'DELETE'
+                ? 'text-danger'
+                : 'text-warning';
+
         return `
             <tr>
                 <td><span class="fw-bold ${badgeClass}">${auditoria.operacion}</span></td>
@@ -628,32 +637,9 @@ async function cargarProductosEnSelect(selectElement, placeholder) {
     selectElement.disabled = false;
 }
 
-async function cargarBodegasEnSelect(selectElement, placeholder) {
-    if (!selectElement) return;
-
-    const bodegas = await apiFetch('/api/bodega/public');
-    selectElement.innerHTML = `
-        <option value="">${placeholder}</option>
-        ${bodegas.map(bodega => `
-            <option value="${bodega.id}">${bodega.nombre}</option>
-        `).join('')}
-    `;
-}
-
-async function cargarProductosEnSelect(selectElement, placeholder) {
-    if (!selectElement) return;
-
-    const productos = await apiFetch('/api/producto/public');
-    selectElement.innerHTML = `
-        <option value="">${placeholder}</option>
-        ${productos.map(producto => `
-            <option value="${producto.id}">${producto.nombre}</option>
-        `).join('')}
-    `;
-}
-
 async function mostrarProductoForm() {
     if (!productoFormBox) return;
+
     ocultarTodosLosFormularios();
     productoFormBox.classList.remove('hidden');
     clearFormError(productoFormError);
@@ -668,6 +654,7 @@ async function mostrarProductoForm() {
 
 async function mostrarBodegaForm() {
     if (!bodegaFormBox) return;
+
     ocultarTodosLosFormularios();
     bodegaFormBox.classList.remove('hidden');
     clearFormError(bodegaFormError);
@@ -712,6 +699,7 @@ function actualizarFormularioMovimientoSegunTipo() {
 
 async function mostrarMovimientoForm() {
     if (!movimientoFormBox) return;
+
     ocultarTodosLosFormularios();
     movimientoFormBox.classList.remove('hidden');
     clearFormError(movimientoFormError);
@@ -737,7 +725,6 @@ async function filtrarAuditoria() {
     const usuario = auditoriaUsuarioFiltro?.value.trim();
     const operacion = auditoriaOperacionFiltro?.value.trim();
 
-    // Contar cuantos filtros tienen valor
     const filtrosActivos = [id, usuario, operacion].filter(v => v !== '').length;
 
     if (filtrosActivos > 1) {
@@ -768,11 +755,13 @@ async function filtrarAuditoria() {
         }
     }
 }
+
 async function editarBodega(id) {
     try {
         const bodega = await apiFetch(`/api/bodega/${id}`);
+
         ocultarTodosLosFormularios();
-        bodegaFormBox.classList.remove('hidden');
+        if (bodegaFormBox) bodegaFormBox.classList.remove('hidden');
         clearFormError(bodegaFormError);
 
         await cargarUsuariosEnSelect(bodegaEncargadoId, 'Seleccione un encargado');
@@ -781,7 +770,6 @@ async function editarBodega(id) {
         document.getElementById('bodegaUbicacion').value = bodega.ubicacion;
         document.getElementById('bodegaCapacidad').value = bodega.capacidad;
 
-        // Seleccionar el encargado actual por nombre
         const opciones = bodegaEncargadoId.options;
         for (let i = 0; i < opciones.length; i++) {
             if (opciones[i].text.startsWith(bodega.nombreEncargado)) {
@@ -800,6 +788,7 @@ async function editarBodega(id) {
 
 async function eliminarBodega(id, nombre) {
     if (!confirm(`¿Seguro que deseas eliminar la bodega "${nombre}"?`)) return;
+
     try {
         await apiFetch(`/api/bodega/${id}`, { method: 'DELETE' });
         await cargarTodo();
@@ -808,13 +797,12 @@ async function eliminarBodega(id, nombre) {
     }
 }
 
-// ─── PRODUCTO: editar y eliminar ─────────────────────────────────────────────
-
 async function editarProducto(id) {
     try {
         const producto = await apiFetch(`/api/producto/${id}`);
+
         ocultarTodosLosFormularios();
-        productoFormBox.classList.remove('hidden');
+        if (productoFormBox) productoFormBox.classList.remove('hidden');
         clearFormError(productoFormError);
 
         await cargarBodegasEnSelect(productoBodegaId, 'Seleccione una bodega');
@@ -824,7 +812,6 @@ async function editarProducto(id) {
         document.getElementById('productoPrecio').value = producto.precio;
         document.getElementById('productoStock').value = producto.stock;
 
-        // Seleccionar la bodega actual
         const opciones = productoBodegaId.options;
         for (let i = 0; i < opciones.length; i++) {
             if (opciones[i].text === producto.bodega?.nombre) {
@@ -843,6 +830,7 @@ async function editarProducto(id) {
 
 async function eliminarProducto(id, nombre) {
     if (!confirm(`¿Seguro que deseas eliminar el producto "${nombre}"?`)) return;
+
     try {
         await apiFetch(`/api/producto/${id}`, { method: 'DELETE' });
         alert('Producto eliminado correctamente');
@@ -857,10 +845,9 @@ async function eliminarProducto(id, nombre) {
     }
 }
 
-// ─── MOVIMIENTO: eliminar ─────────────────────────────────────────────────────
-
 async function eliminarMovimiento(id) {
     if (!confirm('¿Seguro que deseas eliminar este movimiento? Se revertirá el stock.')) return;
+
     try {
         await apiFetch(`/api/movimiento/${id}`, { method: 'DELETE' });
         await cargarTodo();
@@ -868,6 +855,7 @@ async function eliminarMovimiento(id) {
         alert(error.message);
     }
 }
+
 async function eliminarUsuario(documento, nombre) {
     if (!confirm(`¿Seguro que deseas eliminar al usuario "${nombre}"?`)) return;
 
@@ -883,37 +871,37 @@ async function eliminarUsuario(documento, nombre) {
     }
 }
 
+if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-loginForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
+        limpiarErrorLogin();
 
-    limpiarErrorLogin();
+        const username = document.getElementById('userInput').value.trim();
+        const password = document.getElementById('passwordInput').value.trim();
 
-    const username = document.getElementById('userInput').value.trim();
-    const password = document.getElementById('passwordInput').value.trim();
+        try {
+            const response = await apiFetch('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
 
-    try {
-        const response = await apiFetch('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password })
-        });
-
-     setSession(response.token, username, response.rol);
-        showApp(username);
-        await cargarTodo();
-    } catch (error) {
-        mostrarErrorLogin(error.message || 'Usuario o contraseña incorrectos');
-    }
-});
+            setSession(response.token, username, response.rol);
+            showApp(username);
+            await cargarTodo();
+        } catch (error) {
+            mostrarErrorLogin(error.message || 'Usuario o contraseña incorrectos');
+        }
+    });
+}
 
 if (showRegister) {
     showRegister.addEventListener('click', function (e) {
         e.preventDefault();
         limpiarErrorLogin();
         configurarRolRegistro();
-    closeSidebarMobile();
-        loginCard.classList.add('hidden');
-        registerCard.classList.remove('hidden');
+        if (loginCard) loginCard.classList.add('hidden');
+        if (registerCard) registerCard.classList.remove('hidden');
     });
 }
 
@@ -921,8 +909,8 @@ if (showLoginLink) {
     showLoginLink.addEventListener('click', function (e) {
         e.preventDefault();
         limpiarErrorLogin();
-        registerCard.classList.add('hidden');
-        loginCard.classList.remove('hidden');
+        if (registerCard) registerCard.classList.add('hidden');
+        if (loginCard) loginCard.classList.remove('hidden');
     });
 }
 
@@ -944,8 +932,8 @@ if (registerForm) {
 
             alert('Usuario registrado correctamente');
             registerForm.reset();
-            registerCard.classList.add('hidden');
-            loginCard.classList.remove('hidden');
+            if (registerCard) registerCard.classList.add('hidden');
+            if (loginCard) loginCard.classList.remove('hidden');
         } catch (error) {
             alert(error.message);
         }
@@ -979,6 +967,7 @@ if (productoForm) {
                 await apiFetch('/api/producto', { method: 'POST', body });
                 alert('Producto registrado correctamente');
             }
+
             ocultarTodosLosFormularios();
             await cargarTodo();
         } catch (error) {
@@ -1012,6 +1001,7 @@ if (bodegaForm) {
                 await apiFetch('/api/bodega', { method: 'POST', body });
                 alert('Bodega registrada correctamente');
             }
+
             ocultarTodosLosFormularios();
             await cargarTodo();
         } catch (error) {
@@ -1027,7 +1017,6 @@ if (movTipo) {
 if (movimientoForm) {
     movimientoForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-
         clearFormError(movimientoFormError);
 
         const tipoMovimiento = movTipo.value;
@@ -1131,15 +1120,17 @@ if (sidebarOverlay) {
     });
 }
 
-logoutBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    clearSession();
-    limpiarErrorLogin();
-    ocultarTodosLosFormularios();
-    closeSidebarMobile();
-    showLogin();
-    loginForm.reset();
-});
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        clearSession();
+        limpiarErrorLogin();
+        ocultarTodosLosFormularios();
+        closeSidebarMobile();
+        showLogin();
+        if (loginForm) loginForm.reset();
+    });
+}
 
 menuItems.forEach(item => {
     item.addEventListener('click', function () {
@@ -1152,7 +1143,7 @@ function navigate(sectionId, element) {
     menuItems.forEach(item => item.classList.remove('active'));
     element.classList.add('active');
 
-    pageTitle.innerText = titles[sectionId] || 'Panel';
+    if (pageTitle) pageTitle.innerText = titles[sectionId] || 'Panel';
     currentSection = sectionId;
 
     document.querySelectorAll('.content-section').forEach(section => {
@@ -1168,7 +1159,6 @@ function navigate(sectionId, element) {
         ocultarTodosLosFormularios();
     }
 
-    // Mostrar btnNuevo solo donde tiene función
     const seccionesConNuevo = ['productos', 'bodegas', 'movimientos'];
     if (btnNuevo) {
         btnNuevo.style.display = seccionesConNuevo.includes(sectionId) ? '' : 'none';
@@ -1177,17 +1167,19 @@ function navigate(sectionId, element) {
     closeSidebarMobile();
 }
 
-btnNuevo.addEventListener('click', async function () {
-    if (currentSection === 'productos') {
-        await mostrarProductoForm();
-    } else if (currentSection === 'bodegas') {
-        await mostrarBodegaForm();
-    } else if (currentSection === 'movimientos') {
-        await mostrarMovimientoForm();
-    } else if (currentSection === 'auditoria') {
-        if (auditoriaUsuarioFiltro) auditoriaUsuarioFiltro.focus();
-    }
-});
+if (btnNuevo) {
+    btnNuevo.addEventListener('click', async function () {
+        if (currentSection === 'productos') {
+            await mostrarProductoForm();
+        } else if (currentSection === 'bodegas') {
+            await mostrarBodegaForm();
+        } else if (currentSection === 'movimientos') {
+            await mostrarMovimientoForm();
+        } else if (currentSection === 'auditoria') {
+            if (auditoriaUsuarioFiltro) auditoriaUsuarioFiltro.focus();
+        }
+    });
+}
 
 window.addEventListener('resize', function () {
     if (!isMobileView()) {
@@ -1204,6 +1196,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         showApp(getCurrentUser());
         await cargarTodo();
     }
-    // Ocultar btnNuevo en inicio al cargar
+
     if (btnNuevo) btnNuevo.style.display = 'none';
 });

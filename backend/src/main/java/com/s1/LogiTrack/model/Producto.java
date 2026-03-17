@@ -26,3 +26,6 @@ public class Producto {
     @JoinColumn(name = "bodega_id", nullable = false)
     private Bodega bodega;
 }
+
+//aca se crea la entidad producto que se va a manejar en el  sistema
+// teniendo su mappeo en la base de datos con su tabla productos

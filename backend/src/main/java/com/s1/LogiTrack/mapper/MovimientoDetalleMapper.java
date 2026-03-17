@@ -21,6 +21,7 @@ public class MovimientoDetalleMapper {
                 detalle.getCantidad()
         );
     }
+    //es lo que se emvia al cliente
 
     public MovimientoDetalle DTOAEntidad(MovimientoDetalleRequestDTO dto, Producto producto, Movimiento movimiento) {
         if (dto == null || producto == null || movimiento == null) return null;
@@ -32,6 +33,8 @@ public class MovimientoDetalleMapper {
 
         return detalle;
     }
+
+    //es lo que se se guarda a la base de datos
 
     public void actualizarEntidadDesdeDTO(MovimientoDetalle detalle, MovimientoDetalleRequestDTO dto, Producto producto) {
         if (detalle == null || dto == null || producto == null) return;

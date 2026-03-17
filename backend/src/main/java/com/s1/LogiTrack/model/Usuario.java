@@ -31,3 +31,5 @@ public class Usuario {
     private Rol rol;
 
 }
+//Aca es donde se crea el modelo Usuario, con los atributos que tendra y con su
+// mappeo con la tabla usuarios en la base de datos

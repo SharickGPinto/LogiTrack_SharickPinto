@@ -32,3 +32,6 @@ public class Auditoria {
     @Column(columnDefinition = "TEXT")
     private String valorNuevo;
 }
+
+//aca se crea la entidad auditoria que se va a utilizar en el sistema
+// que esta mapeado en la base de datos como auditorias

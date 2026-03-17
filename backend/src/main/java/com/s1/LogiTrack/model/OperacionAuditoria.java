@@ -5,3 +5,5 @@ public enum OperacionAuditoria {
     UPDATE,
     DELETE
 }
+
+//enum de OPeracioneAdutoria que va a manejar en el sistema

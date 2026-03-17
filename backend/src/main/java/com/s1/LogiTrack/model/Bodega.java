@@ -28,3 +28,6 @@ public class Bodega {
     @JoinColumn(name = "encargado_id", nullable = false)
     private Usuario encargado;
 }
+
+//aca se crea la entidad Bodega que se va a utilizar en el sistema
+// que esta mappeado en la base de datos

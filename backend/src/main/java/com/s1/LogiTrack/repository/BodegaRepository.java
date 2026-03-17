@@ -13,3 +13,4 @@ public interface BodegaRepository extends JpaRepository<Bodega, Long> {
     boolean existsByEncargado(Usuario encargado);
 
 }
+//DEfine los metodos de bodega

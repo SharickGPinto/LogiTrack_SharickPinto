@@ -11,3 +11,6 @@ public record AuditoriaResponseDTO(
  String valorNuevo
 ) {
 }
+// DTO de salida que muestra los datos de una auditoría.
+// Esta información es generada automáticamente por el sistema
+// y no es creada directamente por el usuario.

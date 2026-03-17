@@ -79,7 +79,7 @@ USE sharicklogitrack_db;
 -- 1. USUARIOS
 -- -----------------------------------------
 INSERT INTO usuarios (id, nombre, documento, username, password, rol) VALUES
-(1, 'Administrador General', '1001001001', 'admin', 'admin123', 'ADMIN'),
+(1, 'Administrador General', '1001001001', 'admin', '1234', 'ADMIN'),
 (2, 'Laura Gomez', '1098001002', 'lgomez', 'laura123', 'EMPLEADO'),
 (3, 'Carlos Peña', '1098001003', 'cpena', 'carlos123', 'EMPLEADO'),
 (4, 'Andrea Rojas', '1098001004', 'arojas', 'andrea123', 'EMPLEADO'),
