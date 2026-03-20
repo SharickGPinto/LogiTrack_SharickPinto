@@ -2,6 +2,7 @@ package com.s1.LogiTrack.controller;
 
 import com.s1.LogiTrack.dto.request.MovimientoRequestDTO;
 import com.s1.LogiTrack.dto.response.MovimientoResponseDTO;
+import com.s1.LogiTrack.dto.response.ProductoResponseDTO;
 import com.s1.LogiTrack.service.impl.MovimientoServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -96,5 +97,16 @@ public class MovimientoController {
             @PathVariable Long id) {
         movimientoService.eliminarMovimiento(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @Operation(
+            summary = "Listar los ultimos movimientos registrados",
+            description = "Este endpoint muestra los ultimos 10 movimientos."
+    )
+    @ApiResponse(responseCode = "200", description = "Consulta realizada correctamente")
+    @GetMapping("/movimientos/recientes")
+    public ResponseEntity<List<MovimientoResponseDTO>> listarRecientes(
+         @Parameter(description = "Se debe retornar los 10 ultims moviminientos registrados")
+         @PathVariable Long id){
+        return ResponseEntity.ok().body(movimientoService.listarRecientes());
     }
 }

@@ -3,6 +3,7 @@ package com.s1.LogiTrack.service.impl;
 import com.s1.LogiTrack.dto.request.MovimientoDetalleRequestDTO;
 import com.s1.LogiTrack.dto.request.MovimientoRequestDTO;
 import com.s1.LogiTrack.dto.response.MovimientoResponseDTO;
+import com.s1.LogiTrack.dto.response.ProductoResponseDTO;
 import com.s1.LogiTrack.exception.BusinessRuleException;
 import com.s1.LogiTrack.mapper.MovimientoDetalleMapper;
 import com.s1.LogiTrack.mapper.MovimientoMapper;
@@ -138,6 +139,14 @@ public class MovimientoServiceImpl implements MovimientoService {
         movimientoRepository.delete(movimiento);
         registrarAuditoria("Movimiento", OperacionAuditoria.DELETE, movimiento.getUsuario(), valorAnterior, null);
     }
+
+    @Override
+    public List<MovimientoResponseDTO> listarRecientes() {
+        return movimientoRepository.findBylistarRecientes(10).stream()
+                .map(movimientoMapper::entidadADTO)
+                .toList();
+    }
+
 
     private Bodega obtenerBodega(Long id, String mensajeError) {
         if (id == null) {
