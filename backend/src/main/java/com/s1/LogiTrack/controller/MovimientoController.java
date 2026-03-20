@@ -27,6 +27,7 @@ public class MovimientoController {
 
     private final MovimientoServiceImpl movimientoService;
 
+    
     @Operation(
             summary = "Registrar un movimiento",
             description = "Permite guardar un movimiento de inventario. Puede ser de tipo ENTRADA, SALIDA o TRANSFERENCIA, junto con sus detalles."
